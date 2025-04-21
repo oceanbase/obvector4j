@@ -1,50 +1,43 @@
 package com.oceanbase;
 
-
 import java.util.logging.Level;
 
 import com.oceanbase.obvec_jdbc.ObVecJsonClient;
 
-// import java.math.BigDecimal;
-
-// import com.oceanbase.obvec_jdbc.ObVecJsonClient;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * Unit test for simple App.
  */
-public class AppTest 
-    extends TestCase
-{
+public class AppTest {
+    
     /**
-     * Create the test case
-     *
-     * @param testName name of the test case
+     * Initialize OceanBase container before all tests
      */
-    public AppTest( String testName )
-    {
-        super( testName );
+    @BeforeClass
+    public static void setUpClass() throws Throwable {
+        Class.forName("com.oceanbase.jdbc.Driver");
+        OceanBaseContainerTestBase.initContainer();
     }
-
+    
     /**
-     * @return the suite of tests being tested
+     * Clean up OceanBase container after all tests
      */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
+    @AfterClass
+    public static void tearDownClass() throws Throwable {
+        OceanBaseContainerTestBase.stopContainer();
     }
 
     /**
      * Rigourous Test :-)
      */
-    public void testApp()
-    {
-        String uri = "jdbc:oceanbase://127.0.0.1:2881/test";
-        String user = "root@test";
-        String password = "";
+    @Test
+    public void testApp() throws Throwable {
+        String uri = OceanBaseContainerTestBase.getJdbcUrl();
+        String user = OceanBaseContainerTestBase.getUsername();
+        String password = OceanBaseContainerTestBase.getPassword();
         try {
             ObVecJsonClient client = new ObVecJsonClient(uri, user, password, "0", Level.INFO, false);
             client.reset();
@@ -58,10 +51,13 @@ public class AppTest
             sql = "ALTER TABLE t2 DROP c1";
             client.parseJsonTableSQL2NormalSQL(sql);
 
-            sql = "ALTER TABLE t2 MODIFY COLUMN changed_col TIMESTAMP NOT NULL DEFAULT current_timestamp";
+            sql = "ALTER TABLE t2 MODIFY COLUMN changed_col TIMESTAMP NULL DEFAULT current_timestamp";
             client.parseJsonTableSQL2NormalSQL(sql);
 
             sql = "ALTER TABLE t2 ADD COLUMN email VARCHAR(100) default 'example@example.com'";
+            client.parseJsonTableSQL2NormalSQL(sql);
+
+            sql = "ALTER TABLE t2 ALTER email DROP DEFAULT";
             client.parseJsonTableSQL2NormalSQL(sql);
 
             sql = "ALTER TABLE t2 ADD COLUMN email2 VARCHAR(100)";
