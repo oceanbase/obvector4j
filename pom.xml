@@ -39,6 +39,37 @@
        <artifactId>jsqlparser</artifactId>
        <version>4.7</version>  <!-- 5.x 需要 Java 11+，需降级到 4.7 -->
     </dependency>
+
+    <!-- Testcontainers for integration testing -->
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers</artifactId>
+      <version>1.19.8</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>oceanbase</artifactId>
+      <version>1.19.8</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- SLF4J API for logging -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.36</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- SLF4J Simple implementation for tests -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.36</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <licenses>

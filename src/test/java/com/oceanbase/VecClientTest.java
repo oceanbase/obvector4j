@@ -1,6 +1,5 @@
 package com.oceanbase;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -14,10 +13,6 @@ import com.oceanbase.obvec_jdbc.SqlInteger;
 import com.oceanbase.obvec_jdbc.SqlText;
 import com.oceanbase.obvec_jdbc.SqlVector;
 import com.oceanbase.obvec_jdbc.Sqlizable;
-
-// import java.math.BigDecimal;
-
-// import com.oceanbase.obvec_jdbc.ObVecJsonClient;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -48,19 +43,26 @@ public class VecClientTest
     }
 
     /**
+     * Initialize OceanBase container before all tests
+     */
+    static {
+        try {
+            Class.forName("com.oceanbase.jdbc.Driver");
+            OceanBaseContainerTestBase.initContainer();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Rigourous Test :-)
      */
     public void testApp()
     {
         try {
-            Class.forName("com.oceanbase.jdbc.Driver");
-        } catch (Throwable e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                String uri = "jdbc:oceanbase://127.0.0.1:2881/test";
-                String user = "root@test";
-                String password = "";
+            String uri = OceanBaseContainerTestBase.getJdbcUrl();
+            String user = OceanBaseContainerTestBase.getUsername();
+            String password = OceanBaseContainerTestBase.getPassword();
                 String tb_name = "JAVA_TEST";
 
                 ObVecClient ob = new ObVecClient(uri, user, password);
@@ -84,10 +86,6 @@ public class VecClientTest
                 collectionSchema.setIndexParams(index_params);
 
                 ob.createCollection(tb_name, collectionSchema);
-
-                // create index
-                // IndexParam index_param = new IndexParam("vidx1", "c2");
-                // ob.createIndex(tb_name, index_param);
                 
                 // insert vectors
                 ArrayList<Sqlizable[]> insert_rows = new ArrayList<>();
@@ -110,7 +108,6 @@ public class VecClientTest
                         }, null);
                 if (res != null) {
                     for (int i = 0; i < res.size(); i++) {
-                        // System.err.printf("%s");
                         for (HashMap.Entry<String, Sqlizable> entry : res.get(i).entrySet()) {
                             System.out.printf("%s : %s, ", entry.getKey(), entry.getValue().toString());
                         }
@@ -185,6 +182,5 @@ public class VecClientTest
             } catch (Throwable e) {
                 e.printStackTrace();
             }
-        }
     }
 }

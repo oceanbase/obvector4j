@@ -38,6 +38,88 @@ mvn install
 
 ## Usage
 
+### Hybrid Search
+
+OceanBase supports two types of hybrid search that combine multiple search techniques:
+
+1. **Full-Text + Vector Hybrid Search**: Combines keyword-based full-text search with semantic vector search
+2. **Scalar + Vector Hybrid Search**: Combines scalar filtering with vector similarity search
+
+**Quick Start - Full-Text + Vector Search:**
+```java
+import com.oceanbase.obvec_jdbc.ObVecClient;
+
+ObVecClient ob = new ObVecClient(uri, user, password);
+
+// Perform hybrid search
+ArrayList<HashMap<String, Sqlizable>> results = ob.textVectorSearch()
+    .table("documents")
+    .queryVector(queryVector)
+    .textFields("title", "content")
+    .textQuery("OceanBase database")
+    .metric("cosine")
+    .topk(10)
+    .search();
+```
+
+**Quick Start - Scalar + Vector Search:**
+```java
+import com.oceanbase.obvec_jdbc.ObVecClient;
+import com.oceanbase.obvec_jdbc.filter.Filter;
+import com.oceanbase.obvec_jdbc.filter.FilterBuilder;
+
+ObVecClient ob = new ObVecClient(uri, user, password);
+
+// Create filter using Filter API
+Filter filter = FilterBuilder.and(
+    FilterBuilder.key("category_id").isEqualTo(1),
+    FilterBuilder.key("price").isGreaterThanOrEqualTo(50.0),
+    FilterBuilder.key("price").isLessThanOrEqualTo(250.0)
+);
+
+// Perform hybrid search with filter
+ArrayList<HashMap<String, Sqlizable>> results = ob.scalarVectorSearch()
+    .table("products")
+    .queryVector(queryVector)
+    .filter(filter)
+    .metric("l2")
+    .topk(10)
+    .outputFields("id", "name", "price")
+    .search();
+```
+
+**Documentation:**
+
+- [Hybrid Search Complete Guide](docs/HYBRID_SEARCH.md) - Comprehensive guide on hybrid search features and usage
+
+### Filter API (Type-Safe Filters)
+
+The Filter API provides a type-safe way to build filters for specifying scalar filtering conditions in hybrid search queries.
+
+**Quick Start:**
+```java
+import com.oceanbase.obvec_jdbc.filter.FilterBuilder;
+
+// Create filter
+Filter filter = FilterBuilder.and(
+    FilterBuilder.key("category_id").isEqualTo(1),
+    FilterBuilder.key("price").isGreaterThanOrEqualTo(100.0)
+);
+
+// Use in hybrid search
+ArrayList<HashMap<String, Sqlizable>> results = ob.scalarVectorSearch()
+    .table("products")
+    .queryVector(queryVector)
+    .filter(filter)
+    .topk(10)
+    .outputFields("id", "name", "price")
+    .search();
+```
+
+**Documentation:**
+
+- [Filter API Complete Guide](docs/FILTER_API_USAGE.md) - Detailed usage documentation and API reference
+
 ### SDK for OceanBase Vector Store
 
 - Setup a client
