@@ -31,6 +31,16 @@ public class FilterBuilder {
     }
 
     /**
+     * Creates an AND filter combining multiple filters (varargs).
+     *
+     * @param filters at least two filters to combine
+     * @return An AND filter
+     */
+    public static Filter and(Filter... filters) {
+        return Filter.and(filters);
+    }
+
+    /**
      * Creates an OR filter combining two filters.
      *
      * @param left  The left filter
@@ -39,6 +49,16 @@ public class FilterBuilder {
      */
     public static Filter or(Filter left, Filter right) {
         return Filter.or(left, right);
+    }
+
+    /**
+     * Creates an OR filter combining multiple filters (varargs).
+     *
+     * @param filters at least two filters to combine
+     * @return An OR filter
+     */
+    public static Filter or(Filter... filters) {
+        return Filter.or(filters);
     }
 
     /**

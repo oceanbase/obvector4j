@@ -152,9 +152,45 @@ public class Filter {
     public static Filter and(Filter left, Filter right) {
         return new Filter(Type.AND, left, right);
     }
+
+    /**
+     * Creates an AND filter combining multiple filters (varargs).
+     * Filters are left-associative: and(a, b, c) = ((a AND b) AND c).
+     *
+     * @param filters at least two filters to combine
+     * @return An AND filter
+     */
+    public static Filter and(Filter... filters) {
+        if (filters == null || filters.length < 2) {
+            throw new IllegalArgumentException("At least two filters are required for AND");
+        }
+        Filter result = filters[0];
+        for (int i = 1; i < filters.length; i++) {
+            result = new Filter(Type.AND, result, filters[i]);
+        }
+        return result;
+    }
     
     public static Filter or(Filter left, Filter right) {
         return new Filter(Type.OR, left, right);
+    }
+
+    /**
+     * Creates an OR filter combining multiple filters (varargs).
+     * Filters are left-associative: or(a, b, c) = ((a OR b) OR c).
+     *
+     * @param filters at least two filters to combine
+     * @return An OR filter
+     */
+    public static Filter or(Filter... filters) {
+        if (filters == null || filters.length < 2) {
+            throw new IllegalArgumentException("At least two filters are required for OR");
+        }
+        Filter result = filters[0];
+        for (int i = 1; i < filters.length; i++) {
+            result = new Filter(Type.OR, result, filters[i]);
+        }
+        return result;
     }
     
     public static Filter not(Filter expression) {

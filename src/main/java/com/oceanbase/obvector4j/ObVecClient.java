@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-public class ObVecClient {
+public class ObVecClient implements AutoCloseable {
     protected Connection conn = null;
     private OceanBaseVersion cachedVersion = null;
     private HybridSearchEngine hybridSearchEngine = null;
@@ -39,8 +39,17 @@ public class ObVecClient {
         try {
             conn = DriverManager.getConnection(uri, user, password);
         } catch (SQLException e) {
-            e.printStackTrace();
             throw e;
+        }
+    }
+
+    /**
+     * Close the underlying JDBC connection.
+     */
+    @Override
+    public void close() throws SQLException {
+        if (conn != null && !conn.isClosed()) {
+            conn.close();
         }
     }
 
@@ -62,138 +71,76 @@ public class ObVecClient {
     }
 
     public void setHNSWEfSearch(int val) throws Throwable {
-        Statement statement = null;
-
-        try {
-            statement = conn.createStatement();
+        try (Statement statement = conn.createStatement()) {
             String sql = String.format("SET @@ob_hnsw_ef_search = %d", val);
-            statement.executeQuery(sql);
-        } catch (Throwable e) {
-            e.printStackTrace();
+            statement.execute(sql);
+        } catch (SQLException e) {
             throw e;
-        } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                throw e;
-            }
         }
     }
 
     public int getHNSWEfSearch() throws Throwable {
-        Statement statement = null;
-        ResultSet resultSet = null;
         ArrayList<Integer> res = new ArrayList<>();
-
-        try {
-            statement = conn.createStatement();
+        try (Statement statement = conn.createStatement()) {
             String sql = String.format("show variables like 'ob_hnsw_ef_search'");
-            resultSet = statement.executeQuery(sql);
-            
-            while (resultSet.next()) {
-                res.add(resultSet.getInt("Value"));
+            try (ResultSet resultSet = statement.executeQuery(sql)) {
+                while (resultSet.next()) {
+                    res.add(resultSet.getInt("Value"));
+                }
             }
-
             if (res.size() != 1) {
                 throw new UnexpectedException("ob_hnsw_ef_search is a single variable");
             }
-        } catch (Throwable e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
             throw e;
-        } finally {
-            try {
-                if (resultSet != null) resultSet.close();
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                throw e;
-            }
         }
         return res.get(0);
     }
 
     public void dropCollection(String table_name) throws Throwable
     {
-        Statement statement = null;
-
-        try {
-            statement = conn.createStatement();
+        try (Statement statement = conn.createStatement()) {
             String sql = String.format("DROP TABLE IF EXISTS %s", table_name);
-            statement.executeQuery(sql);
-        } catch (Throwable e) {
-            e.printStackTrace();
+            statement.execute(sql);
+        } catch (SQLException e) {
             throw e;
-        } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                throw e;
-            }
         }
     }
 
     public boolean hasCollection(String table_name) throws Throwable
     {
-        boolean exists = false;
         try {
             DatabaseMetaData metaData = conn.getMetaData();
-            ResultSet rs = metaData.getTables(null, null, table_name, null);
-            if (rs.next()) {
-                exists = true;
+            try (ResultSet rs = metaData.getTables(null, null, table_name, null)) {
+                return rs.next();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
             throw e;
         }
-
-        return exists;
     }
 
     public void createCollection(String table_name, ObCollectionSchema collection) throws Throwable
     {
-        Statement statement = null;
-
-        try {
-            statement = conn.createStatement();
-            String sql = String.format("CREATE TABLE %s (%s)", table_name, collection.visit());
-            statement.executeQuery(sql);
-        } catch (Throwable e) {
-            e.printStackTrace();
+        try (Statement statement = conn.createStatement()) {
+            String sql = String.format("CREATE TABLE %s (%s)%s",
+                    table_name, collection.visit(), collection.visitTableOptions());
+            statement.execute(sql);
+        } catch (SQLException e) {
             throw e;
-        } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                throw e;
-            }
         }
     }
 
     public void createIndex(String table_name, IndexParam index_param) throws Throwable
     {
-        Statement statement = null;
-
-        try {
-            statement = conn.createStatement();
-            String sql = String.format("CREATE VECTOR INDEX %s on %s(%s) %s", 
+        try (Statement statement = conn.createStatement()) {
+            String sql = String.format("CREATE VECTOR INDEX %s on %s(%s) %s",
                             index_param.getVidxName(),
                             table_name,
                             index_param.getFieldName(),
                             index_param.visit());
-            statement.executeQuery(sql);
-        } catch (Throwable e) {
-            e.printStackTrace();
+            statement.execute(sql);
+        } catch (SQLException e) {
             throw e;
-        } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                throw e;
-            }
         }
     }
 
@@ -206,23 +153,12 @@ public class ObVecClient {
      */
     public void createFulltextIndex(String table_name, String index_name, String column_name) throws Throwable
     {
-        Statement statement = null;
-
-        try {
-            statement = conn.createStatement();
-            String sql = String.format("ALTER TABLE %s ADD FULLTEXT INDEX %s(%s)", 
+        try (Statement statement = conn.createStatement()) {
+            String sql = String.format("ALTER TABLE %s ADD FULLTEXT INDEX %s(%s)",
                             table_name, index_name, column_name);
-            statement.executeUpdate(sql);
-        } catch (Throwable e) {
-            e.printStackTrace();
+            statement.execute(sql);
+        } catch (SQLException e) {
             throw e;
-        } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                throw e;
-            }
         }
     }
 
@@ -232,80 +168,55 @@ public class ObVecClient {
             return;
         }
 
-        try {
-            conn.setAutoCommit(false);
-            // set prepared statement
-            ArrayList<String> param_str_list = new ArrayList<String>(Collections.nCopies(column_names.length, "?"));
-            String sql = String.format("INSERT INTO %s (%s) VALUES (%s)",
-                            table_name,
-                            String.join(", ", column_names),
-                            String.join(", ", param_str_list));
-            PreparedStatement preparedStatement = conn.prepareStatement(sql);
-            // do insertion
+        conn.setAutoCommit(false);
+        ArrayList<String> param_str_list = new ArrayList<String>(Collections.nCopies(column_names.length, "?"));
+        String sql = String.format("INSERT INTO %s (%s) VALUES (%s)",
+                        table_name,
+                        String.join(", ", column_names),
+                        String.join(", ", param_str_list));
+        try (PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
             for (int i = 0; i < rows.size(); i++) {
                 Sqlizable[] cols = rows.get(i);
                 if (cols.length != column_names.length) {
-                    throw new UnsupportedOperationException("column size missmatch");
+                    throw new UnsupportedOperationException("column size mismatch");
                 }
                 for (int col_id = 0; col_id < cols.length; col_id++) {
                     cols[col_id].toDB(col_id + 1, preparedStatement);
                 }
-                preparedStatement.executeUpdate();
+                preparedStatement.addBatch();
             }
-            // commit
+            preparedStatement.executeBatch();
             conn.commit();
         } catch (Throwable e) {
-            // rollback
             if (conn != null) {
                 try {
                     conn.rollback();
-                    System.out.println("Transaction rolled back");
                 } catch (SQLException rollbackEx) {
-                    rollbackEx.printStackTrace();
                     throw rollbackEx;
                 }
             }
-            e.printStackTrace();
             throw e;
         } finally {
-            // reset autocommit
             if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    throw e;
-                }
+                conn.setAutoCommit(true);
             }
         }
     }
 
     public void delete(String table_name, String primary_key_name, ArrayList<Sqlizable> primary_keys) throws Throwable
     {
-        Statement statement = null;
-
-        try {
-            statement = conn.createStatement();
-            ArrayList<String> param_str_list = new ArrayList<String>(Collections.nCopies(primary_keys.size(), "?"));
-            String sql = String.format("DELETE FROM %s WHERE %s in (%s)", 
-                            table_name,
-                            primary_key_name,
-                            String.join(", ", param_str_list));
-            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+        ArrayList<String> param_str_list = new ArrayList<String>(Collections.nCopies(primary_keys.size(), "?"));
+        String sql = String.format("DELETE FROM %s WHERE %s in (%s)",
+                        table_name,
+                        primary_key_name,
+                        String.join(", ", param_str_list));
+        try (PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
             for (int i = 0; i < primary_keys.size(); i++) {
                 primary_keys.get(i).toDB(i + 1, preparedStatement);
             }
             preparedStatement.executeUpdate();
-        } catch (Throwable e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
             throw e;
-        } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                throw e;
-            }
         }
     }
 
@@ -320,16 +231,11 @@ public class ObVecClient {
     {
         ArrayList<HashMap<String, Sqlizable>> res = new ArrayList<>();
 
-        Statement statement = null;
-        ResultSet resultSet = null;
-
         VectorMetric.validateMetricType(metric_type);
         String dist_func = VectorMetric.resolveDistanceFunction(metric_type);
         String vectorLiteral = VectorMetric.formatVectorLiteral(qv);
 
-        try {
-            statement = conn.createStatement();            
-            
+        try (Statement statement = conn.createStatement()) {
             String sql = String.format("SELECT %s FROM %s WHERE %s ORDER BY %s(%s, '%s') APPROXIMATE LIMIT %d",
                             String.join(", ", output_fields),
                             table_name,
@@ -338,35 +244,27 @@ public class ObVecClient {
                             vec_col_name,
                             vectorLiteral,
                             topk);
-            resultSet = statement.executeQuery(sql);
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            int project_count = metaData.getColumnCount();
-            if (project_count != output_datatypes.length) {
-                throw new IllegalArgumentException(" the length of output_datatypes: " + output_datatypes.length + " mismatched with projected column size: " + project_count);
-            }
-            
-            while (resultSet.next()) {
-                HashMap<String, Sqlizable> row = new HashMap<>();
-                
-                for (int i = 1; i <= project_count; i++) {
-                    String columnName = metaData.getColumnName(i);
-                    Sqlizable sqlizable = SqlizableFactory.build(output_datatypes[i - 1], resultSet, columnName);
-                    row.put(columnName, sqlizable);
+            try (ResultSet resultSet = statement.executeQuery(sql)) {
+                ResultSetMetaData metaData = resultSet.getMetaData();
+                int project_count = metaData.getColumnCount();
+                if (project_count != output_datatypes.length) {
+                    throw new IllegalArgumentException(" the length of output_datatypes: " + output_datatypes.length + " mismatched with projected column size: " + project_count);
                 }
+                
+                while (resultSet.next()) {
+                    HashMap<String, Sqlizable> row = new HashMap<>();
+                    
+                    for (int i = 1; i <= project_count; i++) {
+                        String columnName = metaData.getColumnName(i);
+                        Sqlizable sqlizable = SqlizableFactory.build(output_datatypes[i - 1], resultSet, columnName);
+                        row.put(columnName, sqlizable);
+                    }
 
-                res.add(row);
+                    res.add(row);
+                }
             }
-        } catch (Throwable e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
             throw e;
-        } finally {
-            try {
-                if (resultSet != null) resultSet.close();
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                throw e;
-            }
         }
         return res;
     }
@@ -399,7 +297,6 @@ public class ObVecClient {
                 return cachedVersion;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
             throw e;
         }
         throw new SQLException("Unable to detect OceanBase version");
@@ -465,43 +362,41 @@ public class ObVecClient {
         }
         try {
             DatabaseMetaData metaData = conn.getMetaData();
-            ResultSet rs = metaData.getColumns(null, null, tableName, columnName);
-            
-            if (rs.next()) {
-                String typeName = rs.getString("TYPE_NAME");
-                if (typeName == null) {
-                    return DataType.STRING;
-                }
-                typeName = typeName.toUpperCase();
-                
-                if (typeName.contains("VECTOR") || typeName.contains("FLOAT_VECTOR")) {
-                    return DataType.FLOAT_VECTOR;
-                } else if (typeName.contains("TINYINT")) {
-                    return DataType.BOOL;
-                } else if (typeName.contains("SMALLINT")) {
-                    return DataType.INT16;
-                } else if (typeName.contains("INT") && !typeName.contains("BIGINT")) {
-                    return DataType.INT32;
-                } else if (typeName.contains("BIGINT")) {
-                    return DataType.INT64;
-                } else if (typeName.contains("FLOAT")) {
-                    return DataType.FLOAT;
-                } else if (typeName.contains("DOUBLE") || typeName.contains("DECIMAL")) {
-                    return DataType.DOUBLE;
-                } else if (typeName.contains("VARCHAR") || typeName.contains("CHAR")) {
-                    return DataType.VARCHAR;
-                } else if (typeName.contains("TEXT") || typeName.contains("LONGTEXT")) {
-                    return DataType.STRING;
-                } else if (typeName.contains("JSON")) {
-                    return DataType.JSON;
-                } else {
-                    return DataType.STRING;
+            try (ResultSet rs = metaData.getColumns(null, null, tableName, columnName)) {
+                if (rs.next()) {
+                    String typeName = rs.getString("TYPE_NAME");
+                    if (typeName == null) {
+                        return DataType.STRING;
+                    }
+                    typeName = typeName.toUpperCase();
+                    
+                    if (typeName.contains("VECTOR") || typeName.contains("FLOAT_VECTOR")) {
+                        return DataType.FLOAT_VECTOR;
+                    } else if (typeName.contains("TINYINT")) {
+                        return DataType.BOOL;
+                    } else if (typeName.contains("SMALLINT")) {
+                        return DataType.INT16;
+                    } else if (typeName.contains("INT") && !typeName.contains("BIGINT")) {
+                        return DataType.INT32;
+                    } else if (typeName.contains("BIGINT")) {
+                        return DataType.INT64;
+                    } else if (typeName.contains("FLOAT")) {
+                        return DataType.FLOAT;
+                    } else if (typeName.contains("DOUBLE") || typeName.contains("DECIMAL")) {
+                        return DataType.DOUBLE;
+                    } else if (typeName.contains("VARCHAR") || typeName.contains("CHAR")) {
+                        return DataType.VARCHAR;
+                    } else if (typeName.contains("TEXT") || typeName.contains("LONGTEXT")) {
+                        return DataType.STRING;
+                    } else if (typeName.contains("JSON")) {
+                        return DataType.JSON;
+                    } else {
+                        return DataType.STRING;
+                    }
                 }
             }
-            
             return DataType.STRING;
         } catch (SQLException e) {
-            e.printStackTrace();
             return DataType.STRING;
         }
     }
@@ -516,7 +411,6 @@ public class ObVecClient {
         try (Statement statement = conn.createStatement()) {
             statement.execute(sql.trim());
         } catch (SQLException e) {
-            e.printStackTrace();
             throw e;
         }
     }
@@ -550,7 +444,6 @@ public class ObVecClient {
                 results.add(row);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
             throw e;
         }
         return results;
