@@ -23,7 +23,7 @@ jobs:
     - name: Run tests with Maven
       # Testcontainers will automatically start OceanBase container
       # No need to manually start Docker container
-      run: mvn clean test
+      run: mvn clean test -Pintegration
     
     - name: Upload test results
       if: always()

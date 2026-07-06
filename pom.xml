@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.oceanbase</groupId>
-  <artifactId>obvec_jdbc</artifactId>
+  <artifactId>obvector4j</artifactId>
   <packaging>jar</packaging>
   <version>1.0.7</version>
-  <name>obvec_jdbc</name>
-  <description>JAVA SDK for OceanBase Vector Store and JSON virtual table.</description>
+  <name>obvector4j</name>
+  <description>Java SDK (obvector4j) for OceanBase Vector Store and JSON virtual table.</description>
   <url>http://maven.apache.org</url>
 
   <properties>
@@ -90,14 +90,25 @@
   </developers>
 
   <scm>
-      <connection>scm:git:https://github.com/oceanbase/obvec_jdbc.git</connection>
-      <developerConnection>scm:git:https://github.com/oceanbase/obvec_jdbc.git</developerConnection>
-      <url>https://github.com/oceanbase/obvec_jdbc</url>
+      <connection>scm:git:https://github.com/oceanbase/obvector4j.git</connection>
+      <developerConnection>scm:git:https://github.com/oceanbase/obvector4j.git</developerConnection>
+      <url>https://github.com/oceanbase/obvector4j</url>
       <tag>HEAD</tag>
   </scm>
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.2.5</version>
+        <configuration>
+          <!-- Default: unit tests only (no Docker / remote cluster required) -->
+          <includes>
+            <include>**/unit/**</include>
+          </includes>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -142,6 +153,59 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>integration</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration combine.self="override">
+              <includes>
+                <include>**/unit/**</include>
+                <include>**/integration/container/**</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>remote-it</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration combine.self="override">
+              <includes>
+                <include>**/integration/remote/**</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>all-tests</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration combine.self="override">
+              <includes>
+                <include>**/unit/**</include>
+                <include>**/integration/**</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <distributionManagement>
     <snapshotRepository>

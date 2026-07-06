@@ -1,255 +1,126 @@
-# obvec_jdbc
+# obvector4j
 
-A JAVA SDK for OceanBase Vector Store and JSON virtual table.
+Java SDK for OceanBase vector store: vector table CRUD, ANN search, hybrid search (full-text + vector / scalar + vector), custom SQL and HYBRID_SEARCH DSL, JSON virtual tables.
+
+**Requirements**: OceanBase MySQL mode + JDBC driver `oceanbase-client`. Native hybrid search SQL requires **≥ 4.6.0** (`client.supportsHybridSearchSql()`).
+
+---
+
+## Documentation
+
+Start with **[Getting Started](docs/en/01-getting-started.md)** and read **01 → 04** in order. Chinese docs are in [docs/zh/](docs/zh/00-文档目录.md) (same topics, mirrored numbering).
+
+| Step | English | 中文 |
+|:----:|---------|------|
+| 0 | — | [文档目录](docs/zh/00-文档目录.md) |
+| 1 | [Getting Started](docs/en/01-getting-started.md) | [快速入门](docs/zh/01-快速入门.md) |
+| 2 | [Architecture](docs/en/02-architecture.md) | [项目与架构](docs/zh/02-项目与架构.md) |
+| 3 | [Hybrid Search](docs/en/03-hybrid-search.md) | [混合搜索](docs/zh/03-混合搜索.md) |
+| 5 | [HYBRID_SEARCH DSL](docs/en/05-hybrid-search-dsl.md) | [DSL 语法](docs/zh/05-HYBRID_SEARCH-DSL语法.md) |
+| 4 | [Filter API](docs/en/04-filter.md) | [Filter 过滤](docs/zh/04-Filter过滤.md) |
+
+---
 
 ## Installation
 
-- Install with Maven:
-
-1. Add a dependency in your project's `pom.xml` file.
-
-```
+```xml
 <dependency>
   <groupId>com.oceanbase</groupId>
-  <artifactId>obvec_jdbc</artifactId>
+  <artifactId>obvector4j</artifactId>
   <version>1.0.7</version>
 </dependency>
 ```
 
-- Install with source code:
-
-1. Install sdk with maven.  
-
-```
-git clone https://github.com/oceanbase/obvec_jdbc.git
-cd obvec_jdbc
+```bash
+git clone https://github.com/oceanbase/obvector4j.git
+cd obvector4j
 mvn install
 ```
 
-2. Add a dependency in your project's `pom.xml` file (make sure the groupId and artifactId match those of the library you cloned).
+## Connect
 
-```
-<dependency>
-  <groupId>com.oceanbase</groupId>
-  <artifactId>obvec_jdbc</artifactId>
-  <version>1.0.7</version>
-</dependency>
-```
+Provide credentials via environment variables or a secrets manager — **do not hardcode or commit them**:
 
-## Usage
-
-### Hybrid Search
-
-OceanBase supports two types of hybrid search that combine multiple search techniques:
-
-1. **Full-Text + Vector Hybrid Search**: Combines keyword-based full-text search with semantic vector search
-2. **Scalar + Vector Hybrid Search**: Combines scalar filtering with vector similarity search
-
-**Quick Start - Full-Text + Vector Search:**
 ```java
-import com.oceanbase.obvec_jdbc.ObVecClient;
+// OCEANBASE_URI=jdbc:oceanbase://<host>:<port>/<database>
+String uri = System.getenv("OCEANBASE_URI");
+String user = System.getenv("OCEANBASE_USER");
+String password = System.getenv("OCEANBASE_PASSWORD");
 
-ObVecClient ob = new ObVecClient(uri, user, password);
+ObVecClient client = new ObVecClient(uri, user, password);
+```
 
-// Perform hybrid search
-ArrayList<HashMap<String, Sqlizable>> results = ob.textVectorSearch()
+## Quick example
+
+```java
+import com.oceanbase.obvector4j.ObVecClient;
+import com.oceanbase.obvector4j.filter.FilterBuilder;
+
+ObVecClient client = new ObVecClient(uri, user, password);
+
+// Scalar + vector
+client.scalarVectorSearch()
+    .table("products")
+    .queryVector(queryVector)
+    .filter(FilterBuilder.key("category_id").isEqualTo(1))
+    .topk(10)
+    .outputFields("id", "name")
+    .search();
+
+// Custom HYBRID_SEARCH DSL (4.6.0+) — throws if cluster < 4.6.0
+import com.oceanbase.obvector4j.hybrid.core.dsl.HybridDsl;
+
+client.hybridSearch()
+    .customSearch()
     .table("documents")
-    .queryVector(queryVector)
-    .textFields("title", "content")
-    .textQuery("OceanBase database")
-    .metric("cosine")
-    .topk(10)
+    .query(HybridDsl.match("content", "keyword"))
+    .knn(HybridDsl.knn("embedding", queryVector, 10))
+    .rank(HybridDsl.rrf(10, 60))
+    .size(10)
+    .outputFields("id", "title")
     .search();
 ```
 
-**Quick Start - Scalar + Vector Search:**
-```java
-import com.oceanbase.obvec_jdbc.ObVecClient;
-import com.oceanbase.obvec_jdbc.filter.Filter;
-import com.oceanbase.obvec_jdbc.filter.FilterBuilder;
+See [Getting Started](docs/en/01-getting-started.md), [Hybrid Search](docs/en/03-hybrid-search.md), and [DSL Syntax](docs/en/05-hybrid-search-dsl.md) for more.
 
-ObVecClient ob = new ObVecClient(uri, user, password);
+---
 
-// Create filter using Filter API
-Filter filter = FilterBuilder.and(
-    FilterBuilder.key("category_id").isEqualTo(1),
-    FilterBuilder.key("price").isGreaterThanOrEqualTo(50.0),
-    FilterBuilder.key("price").isLessThanOrEqualTo(250.0)
-);
+## Project layout
 
-// Perform hybrid search with filter
-ArrayList<HashMap<String, Sqlizable>> results = ob.scalarVectorSearch()
-    .table("products")
-    .queryVector(queryVector)
-    .filter(filter)
-    .metric("l2")
-    .topk(10)
-    .outputFields("id", "name", "price")
-    .search();
+```
+src/main/java/com/oceanbase/obvector4j/
+├── ObVecClient.java              # entry point
+├── schema/ model/ hybrid/        # schema, values, hybrid search
+├── filter/ version/ json_table/ util/
+docs/en/ … docs/zh/               # mirrored EN / CN docs
 ```
 
-**Documentation:**
+---
 
-- [Hybrid Search Complete Guide](docs/HYBRID_SEARCH.md) - Comprehensive guide on hybrid search features and usage
+## Tests
 
-### Filter API (Type-Safe Filters)
-
-The Filter API provides a type-safe way to build filters for specifying scalar filtering conditions in hybrid search queries.
-
-**Quick Start:**
-```java
-import com.oceanbase.obvec_jdbc.filter.FilterBuilder;
-
-// Create filter
-Filter filter = FilterBuilder.and(
-    FilterBuilder.key("category_id").isEqualTo(1),
-    FilterBuilder.key("price").isGreaterThanOrEqualTo(100.0)
-);
-
-// Use in hybrid search
-ArrayList<HashMap<String, Sqlizable>> results = ob.scalarVectorSearch()
-    .table("products")
-    .queryVector(queryVector)
-    .filter(filter)
-    .topk(10)
-    .outputFields("id", "name", "price")
-    .search();
+```bash
+mvn test                    # unit tests (default, no database)
+mvn test -Pintegration      # Testcontainers integration tests
+mvn test -Premote-it        # remote cluster (env vars below)
 ```
 
-**Documentation:**
+Remote integration tests require your own OceanBase cluster:
 
-- [Filter API Complete Guide](docs/FILTER_API_USAGE.md) - Detailed usage documentation and API reference
+```bash
+export OCEANBASE_REMOTE_IT=1
+export OCEANBASE_HOST=<your-host>
+export OCEANBASE_PORT=<your-port>
+export OCEANBASE_USER=<your-user>
+export OCEANBASE_PASSWORD=<your-password>
+export OCEANBASE_DATABASE=<your-database>
+# or: export OCEANBASE_URI=jdbc:oceanbase://<host>:<port>/<database>
 
-### SDK for OceanBase Vector Store
-
-- Setup a client
-
-```java
-import com.oceanbase.obvec_jdbc.ObVecClient;
-
-String uri = "jdbc:oceanbase://127.0.0.1:2881/test";
-String user = "root@test";
-String password = "";
-String tb_name = "JAVA_TEST";
-
-ObVecClient ob = new ObVecClient(uri, user, password);
+mvn test -Premote-it
 ```
 
-- Vector table schema definition
+---
 
-```java
-import com.oceanbase.obvec_jdbc.DataType;
-import com.oceanbase.obvec_jdbc.ObCollectionSchema;
-import com.oceanbase.obvec_jdbc.ObFieldSchema;
+## License
 
-ObCollectionSchema collectionSchema = new ObCollectionSchema();
-ObFieldSchema c1_field = new ObFieldSchema("c1", DataType.INT32);
-c1_field.IsPrimary(true).IsAutoInc(true);
-ObFieldSchema c2_field = new ObFieldSchema("c2", DataType.FLOAT_VECTOR);
-c2_field.Dim(3).IsNullable(false);
-ObFieldSchema c3_field = new ObFieldSchema("c3", DataType.JSON);
-c3_field.IsNullable(true);
-collectionSchema.addField(c1_field);
-collectionSchema.addField(c2_field);
-collectionSchema.addField(c3_field);
-```
-
-- Create the table with a `vector index`
-
-```java
-import com.oceanbase.obvec_jdbc.IndexParam;
-import com.oceanbase.obvec_jdbc.IndexParams;
-
-IndexParams index_params = new IndexParams();
-IndexParam index_param = new IndexParam("vidx1", "c2");
-index_params.addIndex(index_param);
-collectionSchema.setIndexParams(index_params);
-
-ob.createCollection(tb_name, collectionSchema);
-```
-
-- Insert data
-
-```java
-import com.oceanbase.obvec_jdbc.SqlInteger;
-import com.oceanbase.obvec_jdbc.SqlText;
-import com.oceanbase.obvec_jdbc.SqlVector;
-import com.oceanbase.obvec_jdbc.Sqlizable;
-
-ArrayList<Sqlizable[]> insert_rows = new ArrayList<>();
-Sqlizable[] ir1 = { new SqlVector(new float[] {1.0f, 2.0f, 3.0f}), new SqlText("{\"doc\": \"oceanbase doc 1\"}") };
-insert_rows.add(ir1);
-Sqlizable[] ir2 = { new SqlVector(new float[] {1.1f, 2.2f, 3.3f}), new SqlText("{\"doc\": \"oceanbase doc 2\"}") };
-insert_rows.add(ir2);
-Sqlizable[] ir3 = { new SqlVector(new float[] {0f, 0f, 0f}), new SqlText("{\"doc\": \"oceanbase doc 3\"}") };
-insert_rows.add(ir3);
-ob.insert(tb_name, new String[] {"c2", "c3"}, insert_rows);
-```
-
-- Perform vector ann search
-
-```java
-ArrayList<HashMap<String, Sqlizable>> res = ob.query(tb_name, "c2", "l2", 
-            new float[] {0f, 0f, 0f}, 10,
-            new String[] {"c1", "c3", "c2"},
-            new DataType[] {
-            DataType.INT32,
-            DataType.JSON,
-            DataType.FLOAT_VECTOR
-            });
-if (res != null) {
-    for (int i = 0; i < res.size(); i++) {
-        // System.err.printf("%s");
-        for (HashMap.Entry<String, Sqlizable> entry : res.get(i).entrySet()) {
-            System.out.printf("%s : %s, ", entry.getKey(), entry.getValue().toString());
-        }
-        System.out.print("\n");
-    }
-} else {
-    System.out.println("res is null");
-}
-```
-
-- Delete data
-
-```java
-ArrayList<Sqlizable> ids = new ArrayList<>();
-ids.add(new SqlInteger(2));
-ids.add(new SqlInteger(1));
-ob.delete(tb_name, "c1", ids);
-```
-
-### SDK for JSON Virtual Table
-
-- Setup a client
-
-```java
-import com.oceanbase.obvec_jdbc.ObVecJsonClient;
-
-String uri = "jdbc:oceanbase://127.0.0.1:2881/test";
-String user = "root@test";
-String password = "";
-ObVecJsonClient client = new ObVecJsonClient(uri, user, password, 0, Level.INFO);
-```
-
-- Perform virtual table SQL (Only DDL is supported for JAVA SDK)
-
-```java
-String sql = "create table `t2` (c1 int NOT NULL DEFAULT 10, c2 varchar(30) DEFAULT 'ca', c3 varchar not null, c4 decimal(10, 2), c5 timestamp default current_timestamp);";
-client.parseJsonTableSQL2NormalSQL(sql);
-
-sql = "ALTER TABLE t2 CHANGE COLUMN c2 changed_col INT";
-client.parseJsonTableSQL2NormalSQL(sql);
-
-sql = "ALTER TABLE t2 DROP c1";
-client.parseJsonTableSQL2NormalSQL(sql);
-
-sql = "ALTER TABLE t2 MODIFY COLUMN changed_col TIMESTAMP NOT NULL DEFAULT current_timestamp";
-client.parseJsonTableSQL2NormalSQL(sql);
-
-sql = "ALTER TABLE t2 ADD COLUMN email VARCHAR(100) default 'example@example.com'";
-client.parseJsonTableSQL2NormalSQL(sql);
-
-sql = "ALTER TABLE t2 RENAME TO alter_test";
-client.parseJsonTableSQL2NormalSQL(sql);
-```
+Mulan Permissive Software License v2
