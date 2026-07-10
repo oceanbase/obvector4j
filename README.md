@@ -19,7 +19,7 @@ Java SDK for OceanBase vector store: vector table CRUD, ANN search, hybrid searc
 <dependency>
   <groupId>com.oceanbase</groupId>
   <artifactId>obvector4j</artifactId>
-  <version>1.0.7</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 

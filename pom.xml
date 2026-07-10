@@ -3,7 +3,7 @@
   <groupId>com.oceanbase</groupId>
   <artifactId>obvector4j</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.7</version>
+  <version>1.0.0</version>
   <name>obvector4j</name>
   <description>Java SDK (obvector4j) for OceanBase Vector Store and JSON virtual table.</description>
   <url>https://github.com/oceanbase/obvector4j</url>
