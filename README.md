@@ -8,16 +8,8 @@ Java SDK for OceanBase vector store: vector table CRUD, ANN search, hybrid searc
 
 ## Documentation
 
-Start with **[Getting Started](docs/en/01-getting-started.md)** and read **01 → 04** in order. Chinese docs are in [docs/zh/](docs/zh/00-文档目录.md) (same topics, mirrored numbering).
-
-| Step | English | 中文 |
-|:----:|---------|------|
-| 0 | — | [文档目录](docs/zh/00-文档目录.md) |
-| 1 | [Getting Started](docs/en/01-getting-started.md) | [快速入门](docs/zh/01-快速入门.md) |
-| 2 | [Architecture](docs/en/02-architecture.md) | [项目与架构](docs/zh/02-项目与架构.md) |
-| 3 | [Hybrid Search](docs/en/03-hybrid-search.md) | [混合搜索](docs/zh/03-混合搜索.md) |
-| 5 | [HYBRID_SEARCH DSL](docs/en/05-hybrid-search-dsl.md) | [DSL 语法](docs/zh/05-HYBRID_SEARCH-DSL语法.md) |
-| 4 | [Filter API](docs/en/04-filter.md) | [Filter 过滤](docs/zh/04-Filter过滤.md) |
+- English: [docs/en/](docs/en/)
+- 中文: [docs/zh/](docs/zh/00-文档目录.md)
 
 ---
 
@@ -81,7 +73,7 @@ client.hybridSearch()
     .search();
 ```
 
-See [Getting Started](docs/en/01-getting-started.md), [Hybrid Search](docs/en/03-hybrid-search.md), and [DSL Syntax](docs/en/05-hybrid-search-dsl.md) for more.
+See [docs/en/](docs/en/) for full documentation.
 
 ---
 
@@ -100,8 +92,8 @@ docs/en/ … docs/zh/               # mirrored EN / CN docs
 ## Tests
 
 ```bash
-mvn test                    # unit tests (default, no database)
-mvn test -Pintegration      # Testcontainers integration tests
+make unit-test              # unit tests (default, no database)
+make test                   # Testcontainers integration tests
 mvn test -Premote-it        # remote cluster (env vars below)
 ```
 
