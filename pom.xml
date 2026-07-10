@@ -136,6 +136,7 @@
                   </goals>
                   <configuration>
                       <failOnWarnings>false</failOnWarnings>
+                      <doclint>none</doclint>
                   </configuration>
               </execution>
           </executions>

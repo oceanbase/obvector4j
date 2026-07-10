@@ -15,7 +15,7 @@ unit-test: ## Run unit tests only
 .PHONY: build
 build: ## Build the project (skip tests)
 	@echo -e "\033[0;32m==================> Running $@ ============\033[0m"
-	mvn -B package -DskipTests=true -Dmaven.javadoc.skip=true
+	mvn -B package -DskipTests=true
 
 .PHONY: format-check
 format-check: ## Check code style with Checkstyle
