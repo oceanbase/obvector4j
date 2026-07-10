@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2024 OceanBase. All rights reserved.
+ *
+ * obvector4j is licensed under Mulan PSL v2.
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
+ * You may obtain a copy of Mulan PSL v2 at:
+ *
+ *     http://license.coscl.org.cn/MulanPSL2
+ *
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ *
+ * See the Mulan PSL v2 for more details.
+ */
+
 package com.oceanbase.obvector4j.integration.container;
 
 import com.oceanbase.obvector4j.support.OceanBaseContainerTestBase;
@@ -30,11 +46,11 @@ import junit.framework.TestSuite;
  * Testcontainers integration tests for hybrid search.
  */
 public class HybridSearchTest extends TestCase {
-    
+
     private static String URI;
     private static String USER;
     private static String PASSWORD;
-    
+
     /**
      * Create the test case
      *
@@ -61,8 +77,8 @@ public class HybridSearchTest extends TestCase {
             URI = OceanBaseContainerTestBase.getJdbcUrl();
             USER = OceanBaseContainerTestBase.getUsername();
             PASSWORD = OceanBaseContainerTestBase.getPassword();
-        } catch (Throwable e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize test container", e);
         }
     }
 
@@ -72,91 +88,91 @@ public class HybridSearchTest extends TestCase {
     public void testHybridTextVectorSearch() {
         try {
             Class.forName("com.oceanbase.jdbc.Driver");
-            
+
             String tb_name = "HYBRID_TEXT_VECTOR_TEST";
             ObVecClient ob = new ObVecClient(URI, USER, PASSWORD);
-            
+
             // Drop existing table
             if (ob.hasCollection(tb_name)) {
                 ob.dropCollection(tb_name);
             }
-            
+
             // Create table schema
             ObCollectionSchema collectionSchema = new ObCollectionSchema();
-            
+
             // Vector field (128 dimensions)
             ObFieldSchema vec_field = new ObFieldSchema("embedding", DataType.FLOAT_VECTOR);
             vec_field.Dim(128).IsNullable(false);
             collectionSchema.addField(vec_field);
-            
+
             // Text fields for full-text search
             ObFieldSchema title_field = new ObFieldSchema("title", DataType.STRING);
             title_field.IsNullable(false);
             collectionSchema.addField(title_field);
-            
+
             ObFieldSchema content_field = new ObFieldSchema("content", DataType.STRING);
             content_field.IsNullable(true);
             collectionSchema.addField(content_field);
-            
+
             // Create vector index
             IndexParams index_params = new IndexParams();
             IndexParam index_param = new IndexParam("vidx_embedding", "embedding");
             index_params.addIndex(index_param);
             collectionSchema.setIndexParams(index_params);
-            
+
             ob.createCollection(tb_name, collectionSchema);
-            
+
             // Create full-text indexes
             try {
                 ob.createFulltextIndex(tb_name, "ft_title", "title");
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 // Ignore if index creation fails
             }
-            
+
             try {
                 ob.createFulltextIndex(tb_name, "ft_content", "content");
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 // Ignore if index creation fails
             }
-            
+
             // Insert test data
             ArrayList<Sqlizable[]> insert_rows = new ArrayList<>();
-            
+
             Sqlizable[] row1 = {
                 new SqlVector(generateRandomVector(128)),
                 new SqlText("OceanBase Database Introduction"),
                 new SqlText("OceanBase is a distributed relational database system that supports vector search")
             };
             insert_rows.add(row1);
-            
+
             Sqlizable[] row2 = {
                 new SqlVector(generateRandomVector(128)),
                 new SqlText("Vector Search Technology"),
                 new SqlText("Vector search enables semantic similarity search in databases using embedding vectors")
             };
             insert_rows.add(row2);
-            
+
             Sqlizable[] row3 = {
                 new SqlVector(generateRandomVector(128)),
                 new SqlText("Hybrid Search in OceanBase"),
                 new SqlText("Hybrid search combines full-text search and vector search for better results")
             };
             insert_rows.add(row3);
-            
+
             Sqlizable[] row4 = {
                 new SqlVector(generateRandomVector(128)),
                 new SqlText("Database Management System"),
                 new SqlText("Database systems provide efficient data storage and retrieval capabilities")
             };
             insert_rows.add(row4);
-            
+
             ob.insert(tb_name, new String[] {"embedding", "title", "content"}, insert_rows);
-            
+
             // Wait for index building
             Thread.sleep(3000);
-            
+
             float[] queryVector = generateRandomVector(128);
-            
+
             ArrayList<HashMap<String, Sqlizable>> results1 = ob.textVectorSearch()
                 .table(tb_name)
                 .queryVector(queryVector)
@@ -165,10 +181,10 @@ public class HybridSearchTest extends TestCase {
                 .metric("cosine")
                 .topk(3)
                 .search();
-            
+
             assertNotNull("Results should not be null", results1);
             assertTrue("Should return results", results1.size() > 0);
-            
+
             ArrayList<HashMap<String, Sqlizable>> results2 = ob.textVectorSearch()
                 .table(tb_name)
                 .queryVector(generateRandomVector(128))
@@ -177,10 +193,10 @@ public class HybridSearchTest extends TestCase {
                 .topk(2)
                 .outputField("title")
                 .search();
-            
+
             assertNotNull("Results should not be null", results2);
             assertTrue("Should return results", results2.size() > 0);
-            
+
             ArrayList<HashMap<String, Sqlizable>> results3 = ob.textVectorSearch()
                 .table(tb_name)
                 .queryVector(generateRandomVector(128))
@@ -189,11 +205,10 @@ public class HybridSearchTest extends TestCase {
                 .topk(2)
                 .outputFields("title")  // Only output title
                 .search();
-            
+
             assertNotNull("Results should not be null", results3);
-            
-        } catch (Throwable e) {
-            e.printStackTrace();
+
+        } catch (Exception e) {
             fail("Test failed with exception: " + e.getMessage());
         }
     }
@@ -204,47 +219,47 @@ public class HybridSearchTest extends TestCase {
     public void testHybridScalarVectorSearch() {
         try {
             Class.forName("com.oceanbase.jdbc.Driver");
-            
+
             String tb_name = "HYBRID_SCALAR_VECTOR_TEST";
             ObVecClient ob = new ObVecClient(URI, USER, PASSWORD);
-            
+
             // Drop existing table
             if (ob.hasCollection(tb_name)) {
                 ob.dropCollection(tb_name);
             }
-            
+
             // Create table schema
             ObCollectionSchema collectionSchema = new ObCollectionSchema();
-            
+
             // Vector field (64 dimensions)
             ObFieldSchema vec_field = new ObFieldSchema("embedding", DataType.FLOAT_VECTOR);
             vec_field.Dim(64).IsNullable(false);
             collectionSchema.addField(vec_field);
-            
+
             // Scalar fields for filtering
             ObFieldSchema price_field = new ObFieldSchema("price", DataType.DOUBLE);
             price_field.IsNullable(false);
             collectionSchema.addField(price_field);
-            
+
             ObFieldSchema category_field = new ObFieldSchema("category_id", DataType.INT32);
             category_field.IsNullable(false);
             collectionSchema.addField(category_field);
-            
+
             ObFieldSchema status_field = new ObFieldSchema("status", DataType.INT32);
             status_field.IsNullable(false);
             collectionSchema.addField(status_field);
-            
+
             // Create vector index
             IndexParams index_params = new IndexParams();
             IndexParam index_param = new IndexParam("vidx_embedding", "embedding");
             index_params.addIndex(index_param);
             collectionSchema.setIndexParams(index_params);
-            
+
             ob.createCollection(tb_name, collectionSchema);
-            
+
             // Insert test data
             ArrayList<Sqlizable[]> insert_rows = new ArrayList<>();
-            
+
             Sqlizable[] row1 = {
                 new SqlVector(generateRandomVector(64)),
                 new SqlDouble(100.0),
@@ -252,7 +267,7 @@ public class HybridSearchTest extends TestCase {
                 new SqlInteger(1)
             };
             insert_rows.add(row1);
-            
+
             Sqlizable[] row2 = {
                 new SqlVector(generateRandomVector(64)),
                 new SqlDouble(200.0),
@@ -260,7 +275,7 @@ public class HybridSearchTest extends TestCase {
                 new SqlInteger(1)
             };
             insert_rows.add(row2);
-            
+
             Sqlizable[] row3 = {
                 new SqlVector(generateRandomVector(64)),
                 new SqlDouble(150.0),
@@ -268,7 +283,7 @@ public class HybridSearchTest extends TestCase {
                 new SqlInteger(1)
             };
             insert_rows.add(row3);
-            
+
             Sqlizable[] row4 = {
                 new SqlVector(generateRandomVector(64)),
                 new SqlDouble(300.0),
@@ -276,7 +291,7 @@ public class HybridSearchTest extends TestCase {
                 new SqlInteger(0)
             };
             insert_rows.add(row4);
-            
+
             Sqlizable[] row5 = {
                 new SqlVector(generateRandomVector(64)),
                 new SqlDouble(80.0),
@@ -284,14 +299,14 @@ public class HybridSearchTest extends TestCase {
                 new SqlInteger(1)
             };
             insert_rows.add(row5);
-            
+
             ob.insert(tb_name, new String[] {"embedding", "price", "category_id", "status"}, insert_rows);
-            
+
             // Wait for index building
             Thread.sleep(3000);
-            
+
             float[] queryVector = generateRandomVector(64);
-            
+
             ArrayList<HashMap<String, Sqlizable>> results1 = ob.scalarVectorSearch()
                 .table(tb_name)
                 .queryVector(queryVector)
@@ -300,30 +315,30 @@ public class HybridSearchTest extends TestCase {
                 .topk(5)
                 .outputFields("price", "category_id", "status")
                 .search();
-            
+
             assertNotNull("Results should not be null", results1);
             assertTrue("Should return results", results1.size() > 0);
-            
+
             // Verify filter conditions
             for (HashMap<String, Sqlizable> row : results1) {
                 Sqlizable categoryId = row.get("category_id");
                 Sqlizable price = row.get("price");
                 Sqlizable status = row.get("status");
-                
+
                 assertNotNull("category_id should not be null", categoryId);
                 assertNotNull("price should not be null", price);
                 assertNotNull("status should not be null", status);
-                
+
                 int catId = Integer.parseInt(categoryId.toString());
                 double priceVal = Double.parseDouble(price.toString());
                 int statusVal = Integer.parseInt(status.toString());
-                
+
                 assertEquals("category_id should be 1", 1, catId);
                 assertTrue("price should be >= 50", priceVal >= 50.0);
                 assertTrue("price should be <= 250", priceVal <= 250.0);
                 assertEquals("status should be 1", 1, statusVal);
             }
-            
+
             ArrayList<HashMap<String, Sqlizable>> results2 = ob.scalarVectorSearch()
                 .table(tb_name)
                 .queryVector(generateRandomVector(64))
@@ -331,9 +346,9 @@ public class HybridSearchTest extends TestCase {
                 .topk(3)
                 .outputField("price")
                 .search();
-            
+
             assertNotNull("Results should not be null", results2);
-            
+
             ArrayList<HashMap<String, Sqlizable>> results3 = ob.scalarVectorSearch()
                 .table(tb_name)
                 .queryVector(generateRandomVector(64))
@@ -344,11 +359,10 @@ public class HybridSearchTest extends TestCase {
                     new DataType[]{DataType.DOUBLE, DataType.INT32}
                 )
                 .search();
-            
+
             assertNotNull("Results should not be null", results3);
-            
-        } catch (Throwable e) {
-            e.printStackTrace();
+
+        } catch (Exception e) {
             fail("Test failed with exception: " + e.getMessage());
         }
     }
@@ -359,47 +373,47 @@ public class HybridSearchTest extends TestCase {
     public void testFilterAPI() {
         try {
             Class.forName("com.oceanbase.jdbc.Driver");
-            
+
             String tb_name = "HYBRID_SCALAR_VECTOR_FILTER_TEST";
             ObVecClient ob = new ObVecClient(URI, USER, PASSWORD);
-            
+
             // Drop existing table
             if (ob.hasCollection(tb_name)) {
                 ob.dropCollection(tb_name);
             }
-            
+
             // Create table schema
             ObCollectionSchema collectionSchema = new ObCollectionSchema();
-            
+
             // Vector field (64 dimensions)
             ObFieldSchema vec_field = new ObFieldSchema("embedding", DataType.FLOAT_VECTOR);
             vec_field.Dim(64).IsNullable(false);
             collectionSchema.addField(vec_field);
-            
+
             // Scalar fields for filtering
             ObFieldSchema price_field = new ObFieldSchema("price", DataType.DOUBLE);
             price_field.IsNullable(false);
             collectionSchema.addField(price_field);
-            
+
             ObFieldSchema category_field = new ObFieldSchema("category_id", DataType.INT32);
             category_field.IsNullable(false);
             collectionSchema.addField(category_field);
-            
+
             ObFieldSchema status_field = new ObFieldSchema("status", DataType.INT32);
             status_field.IsNullable(false);
             collectionSchema.addField(status_field);
-            
+
             // Create vector index
             IndexParams index_params = new IndexParams();
             IndexParam index_param = new IndexParam("vidx_embedding", "embedding");
             index_params.addIndex(index_param);
             collectionSchema.setIndexParams(index_params);
-            
+
             ob.createCollection(tb_name, collectionSchema);
-            
+
             // Insert test data
             ArrayList<Sqlizable[]> insert_rows = new ArrayList<>();
-            
+
             Sqlizable[] row1 = {
                 new SqlVector(generateRandomVector(64)),
                 new SqlDouble(100.0),
@@ -407,7 +421,7 @@ public class HybridSearchTest extends TestCase {
                 new SqlInteger(1)
             };
             insert_rows.add(row1);
-            
+
             Sqlizable[] row2 = {
                 new SqlVector(generateRandomVector(64)),
                 new SqlDouble(200.0),
@@ -415,7 +429,7 @@ public class HybridSearchTest extends TestCase {
                 new SqlInteger(1)
             };
             insert_rows.add(row2);
-            
+
             Sqlizable[] row3 = {
                 new SqlVector(generateRandomVector(64)),
                 new SqlDouble(150.0),
@@ -423,7 +437,7 @@ public class HybridSearchTest extends TestCase {
                 new SqlInteger(1)
             };
             insert_rows.add(row3);
-            
+
             Sqlizable[] row4 = {
                 new SqlVector(generateRandomVector(64)),
                 new SqlDouble(300.0),
@@ -431,7 +445,7 @@ public class HybridSearchTest extends TestCase {
                 new SqlInteger(0)
             };
             insert_rows.add(row4);
-            
+
             Sqlizable[] row5 = {
                 new SqlVector(generateRandomVector(64)),
                 new SqlDouble(80.0),
@@ -439,7 +453,7 @@ public class HybridSearchTest extends TestCase {
                 new SqlInteger(1)
             };
             insert_rows.add(row5);
-            
+
             Sqlizable[] row6 = {
                 new SqlVector(generateRandomVector(64)),
                 new SqlDouble(250.0),
@@ -447,14 +461,14 @@ public class HybridSearchTest extends TestCase {
                 new SqlInteger(1)
             };
             insert_rows.add(row6);
-            
+
             ob.insert(tb_name, new String[] {"embedding", "price", "category_id", "status"}, insert_rows);
-            
+
             // Wait for index building
             Thread.sleep(3000);
-            
+
             float[] queryVector = generateRandomVector(64);
-            
+
             Filter filter1 = FilterBuilder.key("category_id").isEqualTo(1);
             ArrayList<HashMap<String, Sqlizable>> results1 = ob.scalarVectorSearch()
                 .table(tb_name)
@@ -463,22 +477,22 @@ public class HybridSearchTest extends TestCase {
                 .topk(10)
                 .outputFields("price", "category_id", "status")
                 .search();
-            
+
             assertNotNull("Results should not be null", results1);
             assertTrue("Should return results", results1.size() > 0);
-            
+
             for (HashMap<String, Sqlizable> row : results1) {
                 Sqlizable categoryId = row.get("category_id");
                 assertNotNull("category_id should not be null", categoryId);
                 int catId = Integer.parseInt(categoryId.toString());
                 assertEquals("category_id should be 1", 1, catId);
             }
-            
+
             Filter filter2 = FilterBuilder.and(
                 FilterBuilder.key("price").isGreaterThanOrEqualTo(100.0),
                 FilterBuilder.key("price").isLessThanOrEqualTo(200.0)
             );
-            
+
             ArrayList<HashMap<String, Sqlizable>> results2 = ob.scalarVectorSearch()
                 .table(tb_name)
                 .queryVector(generateRandomVector(64))
@@ -486,9 +500,9 @@ public class HybridSearchTest extends TestCase {
                 .topk(10)
                 .outputFields("price", "category_id")
                 .search();
-            
+
             assertNotNull("Results should not be null", results2);
-            
+
             for (HashMap<String, Sqlizable> row : results2) {
                 Sqlizable price = row.get("price");
                 assertNotNull("price should not be null", price);
@@ -496,7 +510,7 @@ public class HybridSearchTest extends TestCase {
                 assertTrue("price should be >= 100", priceVal >= 100.0);
                 assertTrue("price should be <= 200", priceVal <= 200.0);
             }
-            
+
             Filter filter3 = FilterBuilder.and(
                 FilterBuilder.key("category_id").isEqualTo(1),
                 FilterBuilder.and(
@@ -507,7 +521,7 @@ public class HybridSearchTest extends TestCase {
                     FilterBuilder.key("status").isEqualTo(1)
                 )
             );
-            
+
             ArrayList<HashMap<String, Sqlizable>> results3 = ob.scalarVectorSearch()
                 .table(tb_name)
                 .queryVector(generateRandomVector(64))
@@ -515,22 +529,22 @@ public class HybridSearchTest extends TestCase {
                 .topk(10)
                 .outputFields("price", "category_id", "status")
                 .search();
-            
+
             assertNotNull("Results should not be null", results3);
-            
+
             for (HashMap<String, Sqlizable> row : results3) {
                 int catId = Integer.parseInt(row.get("category_id").toString());
                 double priceVal = Double.parseDouble(row.get("price").toString());
                 int statusVal = Integer.parseInt(row.get("status").toString());
-                
+
                 assertEquals("category_id should be 1", 1, catId);
                 assertTrue("price should be >= 50", priceVal >= 50.0);
                 assertTrue("price should be <= 250", priceVal <= 250.0);
                 assertEquals("status should be 1", 1, statusVal);
             }
-            
+
             Filter filter4 = FilterBuilder.key("category_id").isIn(1, 2);
-            
+
             ArrayList<HashMap<String, Sqlizable>> results4 = ob.scalarVectorSearch()
                 .table(tb_name)
                 .queryVector(generateRandomVector(64))
@@ -538,17 +552,17 @@ public class HybridSearchTest extends TestCase {
                 .topk(10)
                 .outputFields("category_id")
                 .search();
-            
+
             assertNotNull("Results should not be null", results4);
-            
+
             for (HashMap<String, Sqlizable> row : results4) {
                 int catId = Integer.parseInt(row.get("category_id").toString());
                 assertTrue("category_id should be 1 or 2", catId == 1 || catId == 2);
             }
-            
+
             List<Integer> categoryList = Arrays.asList(1, 3);
             Filter filter5 = FilterBuilder.key("category_id").isIn(categoryList);
-            
+
             ArrayList<HashMap<String, Sqlizable>> results5 = ob.scalarVectorSearch()
                 .table(tb_name)
                 .queryVector(generateRandomVector(64))
@@ -556,14 +570,14 @@ public class HybridSearchTest extends TestCase {
                 .topk(10)
                 .outputFields("category_id")
                 .search();
-            
+
             assertNotNull("Results should not be null", results5);
-            
+
             Filter filter6 = FilterBuilder.and(
                 FilterBuilder.key("price").isGreaterThan(100.0),
                 FilterBuilder.key("price").isLessThan(300.0)
             );
-            
+
             ArrayList<HashMap<String, Sqlizable>> results6 = ob.scalarVectorSearch()
                 .table(tb_name)
                 .queryVector(generateRandomVector(64))
@@ -571,15 +585,15 @@ public class HybridSearchTest extends TestCase {
                 .topk(10)
                 .outputFields("price")
                 .search();
-            
+
             assertNotNull("Results should not be null", results6);
-            
+
             for (HashMap<String, Sqlizable> row : results6) {
                 double priceVal = Double.parseDouble(row.get("price").toString());
                 assertTrue("price should be > 100", priceVal > 100.0);
                 assertTrue("price should be < 300", priceVal < 300.0);
             }
-            
+
             ArrayList<HashMap<String, Sqlizable>> results7 = ob.scalarVectorSearch()
                 .table(tb_name)
                 .queryVector(generateRandomVector(64))
@@ -587,9 +601,9 @@ public class HybridSearchTest extends TestCase {
                 .topk(10)
                 .outputFields("price", "category_id")
                 .search();
-            
+
             assertNotNull("Results should not be null", results7);
-            
+
             for (HashMap<String, Sqlizable> row : results7) {
                 int catId = Integer.parseInt(row.get("category_id").toString());
                 double priceVal = Double.parseDouble(row.get("price").toString());
@@ -597,9 +611,8 @@ public class HybridSearchTest extends TestCase {
                 assertTrue("price should be >= 100", priceVal >= 100.0);
                 assertTrue("price should be <= 200", priceVal <= 200.0);
             }
-            
-        } catch (Throwable e) {
-            e.printStackTrace();
+
+        } catch (Exception e) {
             fail("Test failed with exception: " + e.getMessage());
         }
     }
@@ -610,55 +623,55 @@ public class HybridSearchTest extends TestCase {
     public void testFilterAPIWithTextVectorSearch() {
         try {
             Class.forName("com.oceanbase.jdbc.Driver");
-            
+
             String tb_name = "HYBRID_TEXT_VECTOR_FILTER_TEST";
             ObVecClient ob = new ObVecClient(URI, USER, PASSWORD);
-            
+
             // Drop existing table
             if (ob.hasCollection(tb_name)) {
                 ob.dropCollection(tb_name);
             }
-            
+
             // Create table schema
             ObCollectionSchema collectionSchema = new ObCollectionSchema();
-            
+
             // Vector field (128 dimensions)
             ObFieldSchema vec_field = new ObFieldSchema("embedding", DataType.FLOAT_VECTOR);
             vec_field.Dim(128).IsNullable(false);
             collectionSchema.addField(vec_field);
-            
+
             // Text fields for full-text search
             ObFieldSchema title_field = new ObFieldSchema("title", DataType.STRING);
             title_field.IsNullable(false);
             collectionSchema.addField(title_field);
-            
+
             // Scalar field for filtering
             ObFieldSchema category_field = new ObFieldSchema("category_id", DataType.INT32);
             category_field.IsNullable(false);
             collectionSchema.addField(category_field);
-            
+
             ObFieldSchema price_field = new ObFieldSchema("price", DataType.DOUBLE);
             price_field.IsNullable(false);
             collectionSchema.addField(price_field);
-            
+
             // Create vector index
             IndexParams index_params = new IndexParams();
             IndexParam index_param = new IndexParam("vidx_embedding", "embedding");
             index_params.addIndex(index_param);
             collectionSchema.setIndexParams(index_params);
-            
+
             ob.createCollection(tb_name, collectionSchema);
-            
+
             // Create full-text indexes
             try {
                 ob.createFulltextIndex(tb_name, "ft_title", "title");
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 // Ignore if index creation fails
             }
-            
+
             // Insert test data
             ArrayList<Sqlizable[]> insert_rows = new ArrayList<>();
-            
+
             Sqlizable[] row1 = {
                 new SqlVector(generateRandomVector(128)),
                 new SqlText("OceanBase Database Introduction"),
@@ -666,7 +679,7 @@ public class HybridSearchTest extends TestCase {
                 new SqlDouble(100.0)
             };
             insert_rows.add(row1);
-            
+
             Sqlizable[] row2 = {
                 new SqlVector(generateRandomVector(128)),
                 new SqlText("Vector Search Technology"),
@@ -674,7 +687,7 @@ public class HybridSearchTest extends TestCase {
                 new SqlDouble(200.0)
             };
             insert_rows.add(row2);
-            
+
             Sqlizable[] row3 = {
                 new SqlVector(generateRandomVector(128)),
                 new SqlText("Hybrid Search in OceanBase"),
@@ -682,7 +695,7 @@ public class HybridSearchTest extends TestCase {
                 new SqlDouble(150.0)
             };
             insert_rows.add(row3);
-            
+
             Sqlizable[] row4 = {
                 new SqlVector(generateRandomVector(128)),
                 new SqlText("Database Management System"),
@@ -690,20 +703,20 @@ public class HybridSearchTest extends TestCase {
                 new SqlDouble(300.0)
             };
             insert_rows.add(row4);
-            
+
             ob.insert(tb_name, new String[] {"embedding", "title", "category_id", "price"}, insert_rows);
-            
+
             // Wait for index building
             Thread.sleep(3000);
-            
+
             // Test: Filter with text vector search
             float[] queryVector = generateRandomVector(128);
-            
+
             Filter filter = FilterBuilder.and(
                 FilterBuilder.key("category_id").isEqualTo(1),
                 FilterBuilder.key("price").isLessThanOrEqualTo(250.0)
             );
-            
+
             ArrayList<HashMap<String, Sqlizable>> results = ob.textVectorSearch()
                 .table(tb_name)
                 .queryVector(queryVector)
@@ -713,18 +726,17 @@ public class HybridSearchTest extends TestCase {
                 .topk(10)
                 .outputFields("title", "category_id", "price")
                 .search();
-            
+
             assertNotNull("Results should not be null", results);
-            
+
             for (HashMap<String, Sqlizable> row : results) {
                 int catId = Integer.parseInt(row.get("category_id").toString());
                 double priceVal = Double.parseDouble(row.get("price").toString());
                 assertEquals("category_id should be 1", 1, catId);
                 assertTrue("price should be <= 250", priceVal <= 250.0);
             }
-            
-        } catch (Throwable e) {
-            e.printStackTrace();
+
+        } catch (Exception e) {
             fail("Test failed with exception: " + e.getMessage());
         }
     }
@@ -735,40 +747,40 @@ public class HybridSearchTest extends TestCase {
     public void testOriginalHybridSearchAPI() {
         try {
             Class.forName("com.oceanbase.jdbc.Driver");
-            
+
             String tb_name = "HYBRID_TEXT_VECTOR_TEST_ORIGINAL";
             ObVecClient ob = new ObVecClient(URI, USER, PASSWORD);
-            
+
             // Drop existing table
             if (ob.hasCollection(tb_name)) {
                 ob.dropCollection(tb_name);
             }
-            
+
             // Create table schema
             ObCollectionSchema collectionSchema = new ObCollectionSchema();
-            
+
             ObFieldSchema vec_field = new ObFieldSchema("embedding", DataType.FLOAT_VECTOR);
             vec_field.Dim(128).IsNullable(false);
             collectionSchema.addField(vec_field);
-            
+
             ObFieldSchema title_field = new ObFieldSchema("title", DataType.STRING);
             title_field.IsNullable(false);
             collectionSchema.addField(title_field);
-            
+
             IndexParams index_params = new IndexParams();
             IndexParam index_param = new IndexParam("vidx_embedding", "embedding");
             index_params.addIndex(index_param);
             collectionSchema.setIndexParams(index_params);
-            
+
             ob.createCollection(tb_name, collectionSchema);
-            
+
             // Create full-text index
             try {
                 ob.createFulltextIndex(tb_name, "ft_title", "title");
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 // Ignore if index already exists
             }
-            
+
             // Insert test data
             ArrayList<Sqlizable[]> insert_rows = new ArrayList<>();
             Sqlizable[] row1 = {
@@ -777,12 +789,12 @@ public class HybridSearchTest extends TestCase {
             };
             insert_rows.add(row1);
             ob.insert(tb_name, new String[] {"embedding", "title"}, insert_rows);
-            
+
             Thread.sleep(3000);
-            
+
             // Test original API
             float[] queryVector = generateRandomVector(128);
-            
+
             ArrayList<HashMap<String, Sqlizable>> results = ob.hybridTextVectorSearch(
                 tb_name,
                 "embedding",
@@ -796,11 +808,10 @@ public class HybridSearchTest extends TestCase {
                 new DataType[] {DataType.STRING},
                 null
             );
-            
+
             assertNotNull("Results should not be null", results);
-            
-        } catch (Throwable e) {
-            e.printStackTrace();
+
+        } catch (Exception e) {
             fail("Test failed with exception: " + e.getMessage());
         }
     }
@@ -811,79 +822,79 @@ public class HybridSearchTest extends TestCase {
     public void testQuickStartFullTextVectorSearch() {
         try {
             Class.forName("com.oceanbase.jdbc.Driver");
-            
+
             String tb_name = "HYBRID_TEXT_VECTOR_QUICKSTART";
             ObVecClient ob = new ObVecClient(URI, USER, PASSWORD);
-            
+
             // Drop existing table
             if (ob.hasCollection(tb_name)) {
                 ob.dropCollection(tb_name);
             }
-            
+
             // Create table schema
             ObCollectionSchema collectionSchema = new ObCollectionSchema();
-            
+
             // Vector field (128 dimensions)
             ObFieldSchema vec_field = new ObFieldSchema("embedding", DataType.FLOAT_VECTOR);
             vec_field.Dim(128).IsNullable(false);
             collectionSchema.addField(vec_field);
-            
+
             // Text fields
             ObFieldSchema title_field = new ObFieldSchema("title", DataType.STRING);
             title_field.IsNullable(false);
             collectionSchema.addField(title_field);
-            
+
             ObFieldSchema content_field = new ObFieldSchema("content", DataType.STRING);
             content_field.IsNullable(true);
             collectionSchema.addField(content_field);
-            
+
             // Create vector index
             IndexParams index_params = new IndexParams();
             IndexParam index_param = new IndexParam("vidx_embedding", "embedding");
             index_params.addIndex(index_param);
             collectionSchema.setIndexParams(index_params);
-            
+
             ob.createCollection(tb_name, collectionSchema);
-            
+
             // Create full-text indexes
             try {
                 ob.createFulltextIndex(tb_name, "ft_title", "title");
                 ob.createFulltextIndex(tb_name, "ft_content", "content");
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 // Ignore if index creation fails
             }
-            
+
             // Insert test data
             ArrayList<Sqlizable[]> insert_rows = new ArrayList<>();
-            
+
             Sqlizable[] row1 = {
                 new SqlVector(generateRandomVector(128)),
                 new SqlText("OceanBase Database Introduction"),
                 new SqlText("OceanBase is a distributed relational database system that supports vector search")
             };
             insert_rows.add(row1);
-            
+
             Sqlizable[] row2 = {
                 new SqlVector(generateRandomVector(128)),
                 new SqlText("Vector Search Technology"),
                 new SqlText("Vector search enables semantic similarity search in databases using embedding vectors")
             };
             insert_rows.add(row2);
-            
+
             Sqlizable[] row3 = {
                 new SqlVector(generateRandomVector(128)),
                 new SqlText("Hybrid Search in OceanBase"),
                 new SqlText("Hybrid search combines full-text search and vector search for better results")
             };
             insert_rows.add(row3);
-            
+
             ob.insert(tb_name, new String[] {"embedding", "title", "content"}, insert_rows);
-            
+
             // Wait for index building
             Thread.sleep(3000);
-            
+
             float[] queryVector = generateRandomVector(128);
-            
+
             ArrayList<HashMap<String, Sqlizable>> results = ob.textVectorSearch()
                 .table(tb_name)
                 .queryVector(queryVector)
@@ -892,17 +903,16 @@ public class HybridSearchTest extends TestCase {
                 .metric("cosine")
                 .topk(3)
                 .search();
-            
+
             assertNotNull("Results should not be null", results);
             assertTrue("Should return results", results.size() > 0);
-            
+
             for (HashMap<String, Sqlizable> row : results) {
                 assertNotNull("title should not be null", row.get("title"));
                 assertNotNull("content should not be null", row.get("content"));
             }
-            
-        } catch (Throwable e) {
-            e.printStackTrace();
+
+        } catch (Exception e) {
             fail("Test failed with exception: " + e.getMessage());
         }
     }
@@ -913,47 +923,47 @@ public class HybridSearchTest extends TestCase {
     public void testQuickStartScalarVectorSearch() {
         try {
             Class.forName("com.oceanbase.jdbc.Driver");
-            
+
             String tb_name = "HYBRID_SCALAR_VECTOR_QUICKSTART";
             ObVecClient ob = new ObVecClient(URI, USER, PASSWORD);
-            
+
             // Drop existing table
             if (ob.hasCollection(tb_name)) {
                 ob.dropCollection(tb_name);
             }
-            
+
             // Create table schema
             ObCollectionSchema collectionSchema = new ObCollectionSchema();
-            
+
             // Vector field (64 dimensions)
             ObFieldSchema vec_field = new ObFieldSchema("embedding", DataType.FLOAT_VECTOR);
             vec_field.Dim(64).IsNullable(false);
             collectionSchema.addField(vec_field);
-            
+
             // Scalar fields
             ObFieldSchema price_field = new ObFieldSchema("price", DataType.DOUBLE);
             price_field.IsNullable(false);
             collectionSchema.addField(price_field);
-            
+
             ObFieldSchema category_field = new ObFieldSchema("category_id", DataType.INT32);
             category_field.IsNullable(false);
             collectionSchema.addField(category_field);
-            
+
             ObFieldSchema status_field = new ObFieldSchema("status", DataType.INT32);
             status_field.IsNullable(false);
             collectionSchema.addField(status_field);
-            
+
             // Create vector index
             IndexParams index_params = new IndexParams();
             IndexParam index_param = new IndexParam("vidx_embedding", "embedding");
             index_params.addIndex(index_param);
             collectionSchema.setIndexParams(index_params);
-            
+
             ob.createCollection(tb_name, collectionSchema);
-            
+
             // Insert test data
             ArrayList<Sqlizable[]> insert_rows = new ArrayList<>();
-            
+
             Sqlizable[] row1 = {
                 new SqlVector(generateRandomVector(64)),
                 new SqlDouble(100.0),
@@ -961,7 +971,7 @@ public class HybridSearchTest extends TestCase {
                 new SqlInteger(1)
             };
             insert_rows.add(row1);
-            
+
             Sqlizable[] row2 = {
                 new SqlVector(generateRandomVector(64)),
                 new SqlDouble(200.0),
@@ -969,7 +979,7 @@ public class HybridSearchTest extends TestCase {
                 new SqlInteger(1)
             };
             insert_rows.add(row2);
-            
+
             Sqlizable[] row3 = {
                 new SqlVector(generateRandomVector(64)),
                 new SqlDouble(150.0),
@@ -977,7 +987,7 @@ public class HybridSearchTest extends TestCase {
                 new SqlInteger(1)
             };
             insert_rows.add(row3);
-            
+
             Sqlizable[] row4 = {
                 new SqlVector(generateRandomVector(64)),
                 new SqlDouble(300.0),
@@ -985,7 +995,7 @@ public class HybridSearchTest extends TestCase {
                 new SqlInteger(0)
             };
             insert_rows.add(row4);
-            
+
             Sqlizable[] row5 = {
                 new SqlVector(generateRandomVector(64)),
                 new SqlDouble(80.0),
@@ -993,14 +1003,14 @@ public class HybridSearchTest extends TestCase {
                 new SqlInteger(1)
             };
             insert_rows.add(row5);
-            
+
             ob.insert(tb_name, new String[] {"embedding", "price", "category_id", "status"}, insert_rows);
-            
+
             // Wait for index building
             Thread.sleep(3000);
-            
+
             float[] queryVector = generateRandomVector(64);
-            
+
             ArrayList<HashMap<String, Sqlizable>> results = ob.scalarVectorSearch()
                 .table(tb_name)
                 .queryVector(queryVector)
@@ -1009,25 +1019,24 @@ public class HybridSearchTest extends TestCase {
                 .topk(5)
                 .outputFields("price", "category_id", "status")
                 .search();
-            
+
             assertNotNull("Results should not be null", results);
             assertTrue("Should return results", results.size() > 0);
-            
+
             boolean allValid = true;
             for (HashMap<String, Sqlizable> row : results) {
                 int categoryId = Integer.parseInt(row.get("category_id").toString());
                 double price = Double.parseDouble(row.get("price").toString());
                 int status = Integer.parseInt(row.get("status").toString());
-                
+
                 if (categoryId != 1 || price < 50 || price > 250 || status != 1) {
                     allValid = false;
                     break;
                 }
             }
             assertTrue("All results should satisfy filter conditions", allValid);
-            
-        } catch (Throwable e) {
-            e.printStackTrace();
+
+        } catch (Exception e) {
             fail("Test failed with exception: " + e.getMessage());
         }
     }

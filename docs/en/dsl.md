@@ -1,9 +1,8 @@
-# 05 · HYBRID_SEARCH DSL Syntax & Examples
+# HYBRID_SEARCH DSL Syntax & Examples
 
-> Read in order: [03-hybrid-search](03-hybrid-search.md) → **05 DSL syntax** → [04-filter](04-filter.md)  
-> 中文：[05-HYBRID_SEARCH-DSL语法](../zh/05-HYBRID_SEARCH-DSL语法.md)
+> 中文：[dsl语法](../zh/dsl语法.md)
 
-This guide covers the **JSON DSL** for OceanBase **4.6.0+** `HYBRID_SEARCH`: grammar, semantics, and obvector4j **`hybrid.core`** builders. For overview and version notes see [03-hybrid-search](03-hybrid-search.md).
+This guide covers the **JSON DSL** for OceanBase **4.6.0+** `HYBRID_SEARCH`: grammar, semantics, and obvector4j **`hybrid.core`** builders. For overview and version notes see [hybrid-search](hybrid-search.md).
 
 ---
 
@@ -366,7 +365,7 @@ Set `boost` on `query` / `knn` for **WRRF** (weighted RRF).
 | `HybridDslNode` | Generic keyword node |
 | `HybridDslKnn` / `HybridDslRank` | `knn` / `rank` sections |
 
-`Filter` objects convert via `FilterMapper` — see [04-filter](04-filter.md).
+`Filter` objects convert via `FilterMapper` — see [filter](filter.md).
 
 ---
 
@@ -440,7 +439,7 @@ mvn test -Dtest=HybridSearchDocIT
 
 ## Related docs
 
-- [← 03-hybrid-search](03-hybrid-search.md)
-- [04-filter](04-filter.md)
-- [05-HYBRID_SEARCH-DSL语法 (中文)](../zh/05-HYBRID_SEARCH-DSL语法.md)
+- [Hybrid Search](hybrid-search.md)
+- [Filter API](filter.md)
+- [dsl语法 (中文)](../zh/dsl语法.md)
 - [OceanBase HYBRID_SEARCH](https://www.oceanbase.com/docs/common-oceanbase-database-cn-1000000005682104)

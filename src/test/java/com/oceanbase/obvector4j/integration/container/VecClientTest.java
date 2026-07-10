@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2024 OceanBase. All rights reserved.
+ *
+ * obvector4j is licensed under Mulan PSL v2.
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
+ * You may obtain a copy of Mulan PSL v2 at:
+ *
+ *     http://license.coscl.org.cn/MulanPSL2
+ *
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ *
+ * See the Mulan PSL v2 for more details.
+ */
+
 package com.oceanbase.obvector4j.integration.container;
 
 import com.oceanbase.obvector4j.support.OceanBaseContainerTestBase;
@@ -49,8 +65,8 @@ public class VecClientTest extends TestCase {
         try {
             Class.forName("com.oceanbase.jdbc.Driver");
             OceanBaseContainerTestBase.initContainer();
-        } catch (Throwable e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize test container", e);
         }
     }
 
@@ -86,7 +102,7 @@ public class VecClientTest extends TestCase {
                 collectionSchema.setIndexParams(index_params);
 
                 ob.createCollection(tb_name, collectionSchema);
-                
+
                 // insert vectors
                 ArrayList<Sqlizable[]> insert_rows = new ArrayList<>();
                 Sqlizable[] ir1 = { new SqlVector(new float[] {1.0f, 2.0f, 3.0f}), new SqlText("{\"doc\": \"oceanbase doc 1\"}") };
@@ -96,9 +112,9 @@ public class VecClientTest extends TestCase {
                 Sqlizable[] ir3 = { new SqlVector(new float[] {0f, 0f, 0f}), new SqlText("{\"doc\": \"oceanbase doc 3\"}") };
                 insert_rows.add(ir3);
                 ob.insert(tb_name, new String[] {"c2", "c3"}, insert_rows);
-                
+
                 // query
-                ArrayList<HashMap<String, Sqlizable>> res = ob.query(tb_name, "c2", "l2", 
+                ArrayList<HashMap<String, Sqlizable>> res = ob.query(tb_name, "c2", "l2",
                         new float[] {0f, 0f, 0f}, 10,
                         new String[] {"c1", "c3", "c2"},
                         new DataType[] {
@@ -122,7 +138,7 @@ public class VecClientTest extends TestCase {
                 ids.add(new SqlInteger(2));
                 ids.add(new SqlInteger(1));
                 ob.delete(tb_name, "c1", ids);
-                
+
                 tb_name = "JAVA_TEST2";
                 ob.dropCollection(tb_name);
                 ObCollectionSchema collectionSchema2 = new ObCollectionSchema();
@@ -147,7 +163,7 @@ public class VecClientTest extends TestCase {
                 index_param2.MetricType("inner_product");
                 ob.createIndex(tb_name, index_param2);
 
-                ArrayList<HashMap<String, Sqlizable>> res2 = ob.query(tb_name, "vec", "ip", 
+                ArrayList<HashMap<String, Sqlizable>> res2 = ob.query(tb_name, "vec", "ip",
                         new float[] {1f, 1f, 1f}, 10,
                         new String[] {"*"},
                         new DataType[] {
@@ -164,13 +180,13 @@ public class VecClientTest extends TestCase {
                 } else {
                     System.out.println("res is null");
                 }
-                
+
                 int ef_search_before = ob.getHNSWEfSearch();
                 System.out.println("before set ef_search: " + ef_search_before);
                 ob.setHNSWEfSearch(200);
                 int ef_search = ob.getHNSWEfSearch();
                 System.out.println("ef_search: " + ef_search);
-                
+
                 ObVecClient client2 = new ObVecClient(uri, user, password);
                 int client2_efsearch = client2.getHNSWEfSearch();
                 System.out.println("client2 ef_search: " + client2_efsearch);
@@ -179,8 +195,8 @@ public class VecClientTest extends TestCase {
                 ef_search = ob.getHNSWEfSearch();
                 client2_efsearch = client2.getHNSWEfSearch();
                 System.out.println("ef_search: " + ef_search + " client2 ef_search: " + client2_efsearch);
-            } catch (Throwable e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                throw new RuntimeException("Test failed", e);
             }
     }
 }

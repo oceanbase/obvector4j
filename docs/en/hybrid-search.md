@@ -1,7 +1,6 @@
-# 03 · Hybrid Search
+# Hybrid Search
 
-> Read in order: ← [02-architecture](02-architecture.md) → [04-filter](04-filter.md)  
-> 中文：[03-混合搜索](../zh/03-混合搜索.md)
+> 中文：[混合搜索](../zh/混合搜索.md)
 
 > Reference: [OceanBase HYBRID_SEARCH](https://www.oceanbase.com/docs/common-oceanbase-database-cn-1000000005682104)
 
@@ -31,7 +30,7 @@ Both types use Reciprocal Rank Fusion (RRF) to merge results from different sear
 | `HYBRID_SEARCH` SQL interface | **4.6.0** | Auto-enabled when version ≥ 4.6.0 |
 | Legacy hybrid search (client-side RRF) | 4.4.x+ | Used when version < 4.6.0 |
 
-When connected to OceanBase 4.6.0+, the SDK automatically uses the native `HYBRID_SEARCH` SQL syntax. See [03-混合搜索 (中文)](../zh/03-混合搜索.md) for the Chinese guide.
+When connected to OceanBase 4.6.0+, the SDK automatically uses the native `HYBRID_SEARCH` SQL syntax. See [混合搜索 (中文)](../zh/混合搜索.md) for the Chinese guide.
 
 ```java
 if (ob.supportsHybridSearchSql()) {
@@ -77,11 +76,11 @@ client.textVectorSearch()
     .search();
 ```
 
-See [04-filter](04-filter.md) for Filter details.
+See [filter](filter.md) for Filter details.
 
 ## Custom SQL & DSL
 
-> **Full DSL grammar, bool/knn/rank rules, and examples** → [05-hybrid-search-dsl](05-hybrid-search-dsl.md)
+> **Full DSL grammar, bool/knn/rank rules, and examples** → [dsl](dsl.md)
 
 ### Custom SQL
 
@@ -102,7 +101,7 @@ client.hybridSearch()
     .search();
 ```
 
-For `multi_match`, `query_string`, JSON/Array filters, `minimum_should_match` defaults, multi-path knn, WRRF, and more, see **[05 · HYBRID_SEARCH DSL Syntax](05-hybrid-search-dsl.md)**.
+For `multi_match`, `query_string`, JSON/Array filters, `minimum_should_match` defaults, multi-path knn, WRRF, and more, see **[HYBRID_SEARCH DSL Syntax](dsl.md)**.
 
 ---
 
@@ -124,7 +123,7 @@ textVectorSearch() / scalarVectorSearch()
 
 ## Constraints
 
-Same as the [Chinese guide](../zh/03-混合搜索.md#使用限制oceanbase-侧): heap tables only, vector/full-text indexes required, no `WHERE`/`ORDER BY`/`LIMIT` on the same level as `HYBRID_SEARCH`.
+Same as the [Chinese guide](../zh/混合搜索.md#使用限制oceanbase-侧): heap tables only, vector/full-text indexes required, no `WHERE`/`ORDER BY`/`LIMIT` on the same level as `HYBRID_SEARCH`.
 
 ## FAQ & remote tests
 
@@ -132,13 +131,13 @@ Same as the [Chinese guide](../zh/03-混合搜索.md#使用限制oceanbase-侧):
 ob.supportsHybridSearchSql();  // true = native HYBRID_SEARCH SQL
 ```
 
-Remote IT: `HybridSearchRemoteIT` with `OCEANBASE_REMOTE_IT=1` and connection env vars. See [Chinese guide · 远程集成测试](../zh/03-混合搜索.md#远程集成测试).
+Remote IT: `HybridSearchRemoteIT` with `OCEANBASE_REMOTE_IT=1` and connection env vars. See [Chinese guide · 远程集成测试](../zh/混合搜索.md#远程集成测试).
 
 ## Related docs
 
-- [← 02-architecture](02-architecture.md)
-- [04-filter →](04-filter.md)
-- [03-混合搜索 (中文)](../zh/03-混合搜索.md)
+- [Architecture](architecture.md)
+- [Filter API](filter.md)
+- [混合搜索 (中文)](../zh/混合搜索.md)
 - [OceanBase HYBRID_SEARCH](https://www.oceanbase.com/docs/common-oceanbase-database-cn-1000000005682104)
 
 ---
@@ -397,7 +396,7 @@ for (HashMap<String, Sqlizable> row : results) {
 }
 ```
 
-For more details on the Filter API, see [04-filter](04-filter.md).
+For more details on the Filter API, see [filter](filter.md).
 
 ## Builder API
 
@@ -677,6 +676,6 @@ Both searches are performed independently, and results are merged using RRF to p
 
 ## Related Documentation
 
-- [04-filter](04-filter.md) — Filter API reference
-- [03-混合搜索 (中文)](../zh/03-混合搜索.md) — Chinese hybrid search guide
+- [Filter API](filter.md) — filter API reference
+- [混合搜索 (中文)](../zh/混合搜索.md) — Chinese hybrid search guide
 

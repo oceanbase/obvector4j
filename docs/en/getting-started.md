@@ -1,6 +1,6 @@
-# 01 · Getting Started
+# Getting Started
 
-> Read in order: **01 → 02 → 03 → 04** · 中文：[01-快速入门](../zh/01-快速入门.md)
+> 中文：[快速入门](../zh/快速入门.md)
 
 ---
 
@@ -28,7 +28,7 @@
 ```bash
 git clone https://github.com/oceanbase/obvector4j.git
 cd obvector4j
-mvn install
+make build
 ```
 
 ## Connect
@@ -45,7 +45,7 @@ ObVecClient client = new ObVecClient(uri, user, password);
 
 ## Create table & insert
 
-See [02-architecture](02-architecture.md) for schema types. Minimal example:
+See [architecture](architecture.md) for schema types. Minimal example:
 
 ```java
 import com.oceanbase.obvector4j.schema.*;
@@ -81,7 +81,7 @@ client.textVectorSearch()
     .search();
 ```
 
-See [03-hybrid-search](03-hybrid-search.md) and [04-filter](04-filter.md) for details.
+See [hybrid-search](hybrid-search.md) and [filter](filter.md) for details.
 
 ## Custom SQL & DSL
 
@@ -108,13 +108,11 @@ client.hybridSearch()
     .search();
 ```
 
-See [05-hybrid-search-dsl](05-hybrid-search-dsl.md) for full DSL grammar and examples. Overview: [03-hybrid-search](03-hybrid-search.md), filters: [04-filter](04-filter.md).
+See [dsl](dsl.md) for full DSL grammar and examples. Overview: [hybrid-search](hybrid-search.md), filters: [filter](filter.md).
 
 ## Next
 
-| Doc | Topic |
-|-----|-------|
-| [02-architecture](02-architecture.md) | Packages, API cheat sheet, `hybrid.dsl` |
-| [03-hybrid-search](03-hybrid-search.md) | HYBRID_SEARCH overview, compatibility |
-| [05-hybrid-search-dsl](05-hybrid-search-dsl.md) | DSL grammar, bool/knn/rank, examples |
-| [04-filter](04-filter.md) | Filter DSL full reference |
+- [Architecture](architecture.md) — packages, API cheat sheet
+- [Hybrid Search](hybrid-search.md) — overview, compatibility
+- [HYBRID_SEARCH DSL](dsl.md) — grammar, examples
+- [Filter API](filter.md) — filter DSL reference

@@ -1,10 +1,25 @@
+/*
+ * Copyright (c) 2024 OceanBase. All rights reserved.
+ *
+ * obvector4j is licensed under Mulan PSL v2.
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
+ * You may obtain a copy of Mulan PSL v2 at:
+ *
+ *     http://license.coscl.org.cn/MulanPSL2
+ *
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ *
+ * See the Mulan PSL v2 for more details.
+ */
+
 package com.oceanbase.obvector4j.hybrid.core.dsl;
 
 import com.oceanbase.obvector4j.filter.Filter;
 import com.oceanbase.obvector4j.filter.FilterMapper;
 import com.oceanbase.obvector4j.hybrid.core.HybridSearchDsl;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 /**
  * Entry point for building OceanBase 4.6.0+ HYBRID_SEARCH DSL from {@link HybridDslKeys}.

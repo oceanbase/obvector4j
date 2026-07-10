@@ -1,7 +1,6 @@
-# 04 · Filter API
+# Filter API
 
-> Read in order: ← [03-hybrid-search](03-hybrid-search.md)  
-> 中文：[04-Filter过滤](../zh/04-Filter过滤.md)
+> 中文：[Filter过滤](../zh/Filter过滤.md)
 
 ## Table of Contents
 

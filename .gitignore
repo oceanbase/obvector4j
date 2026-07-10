@@ -1,3 +1,21 @@
 .DS_Store
 target/
-.class
+
+### IDE ###
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.class
+.classpath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+### Logs ###
+*.log
+
+### Env ###
+.env

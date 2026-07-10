@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2024 OceanBase. All rights reserved.
+ *
+ * obvector4j is licensed under Mulan PSL v2.
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
+ * You may obtain a copy of Mulan PSL v2 at:
+ *
+ *     http://license.coscl.org.cn/MulanPSL2
+ *
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ *
+ * See the Mulan PSL v2 for more details.
+ */
+
 package com.oceanbase.obvector4j.hybrid;
 
 import com.oceanbase.obvector4j.schema.DataType;
@@ -110,7 +126,7 @@ public class HybridTextVectorSearchBuilder extends AbstractHybridSearchBuilder<H
         return this;
     }
 
-    public ArrayList<HashMap<String, Sqlizable>> search() throws Throwable {
+    public ArrayList<HashMap<String, Sqlizable>> search() throws Exception {
         if (tableName == null || tableName.isEmpty()) {
             throw new IllegalArgumentException("Table name cannot be empty");
         }

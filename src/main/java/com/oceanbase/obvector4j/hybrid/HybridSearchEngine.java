@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2024 OceanBase. All rights reserved.
+ *
+ * obvector4j is licensed under Mulan PSL v2.
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
+ * You may obtain a copy of Mulan PSL v2 at:
+ *
+ *     http://license.coscl.org.cn/MulanPSL2
+ *
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ *
+ * See the Mulan PSL v2 for more details.
+ */
+
 package com.oceanbase.obvector4j.hybrid;
 
 import com.oceanbase.obvector4j.schema.DataType;
@@ -23,9 +39,9 @@ import java.util.HashMap;
 public final class HybridSearchEngine {
 
     public interface VersionSupport {
-        boolean supportsHybridSearchSql() throws Throwable;
+        boolean supportsHybridSearchSql() throws Exception;
 
-        OceanBaseVersion getOceanBaseVersion() throws Throwable;
+        OceanBaseVersion getOceanBaseVersion() throws Exception;
     }
 
     private final Connection connection;
@@ -47,7 +63,7 @@ public final class HybridSearchEngine {
             int topk,
             String[] outputFields,
             DataType[] outputDataTypes,
-            Integer rankWindowSize) throws Throwable {
+            Integer rankWindowSize) throws Exception {
 
         textFields = OutputFieldValidator.sanitizeStringFields(textFields, "Full-text search fields");
         OutputFieldValidator.ValidatedFields validated =
@@ -79,7 +95,7 @@ public final class HybridSearchEngine {
             Object filterExpr,
             int topk,
             String[] outputFields,
-            DataType[] outputDataTypes) throws Throwable {
+            DataType[] outputDataTypes) throws Exception {
 
         OutputFieldValidator.ValidatedFields validated =
                 OutputFieldValidator.validateOutputFields(outputFields, outputDataTypes);
@@ -103,7 +119,7 @@ public final class HybridSearchEngine {
             String tableName,
             String dslJson,
             String[] outputFields,
-            DataType[] outputDataTypes) throws Throwable {
+            DataType[] outputDataTypes) throws Exception {
         HybridSearchSupport.require(versionSupport.getOceanBaseVersion());
         OutputFieldValidator.ValidatedFields validated =
                 OutputFieldValidator.validateOutputFields(outputFields, outputDataTypes);
@@ -115,7 +131,7 @@ public final class HybridSearchEngine {
             String tableName,
             String dslJson,
             String[] outputFields,
-            DataType[] outputDataTypes) throws Throwable {
+            DataType[] outputDataTypes) throws Exception {
         StringBuilder sql = new StringBuilder("SELECT ");
         for (int i = 0; i < outputFields.length; i++) {
             if (i > 0) {
@@ -150,7 +166,7 @@ public final class HybridSearchEngine {
             String whereExpr,
             int topk,
             String[] outputFields,
-            DataType[] outputDataTypes) throws Throwable {
+            DataType[] outputDataTypes) throws Exception {
         VectorMetric.validateMetricType(metricType);
         String distFunc = VectorMetric.resolveDistanceFunction(metricType);
         String vectorStr = VectorMetric.formatVectorLiteral(queryVector);
@@ -217,7 +233,7 @@ public final class HybridSearchEngine {
             String whereExpr,
             int topk,
             String[] outputFields,
-            DataType[] outputDataTypes) throws Throwable {
+            DataType[] outputDataTypes) throws Exception {
         ArrayList<HashMap<String, Sqlizable>> results = new ArrayList<>();
         if (textFields == null || textFields.length == 0) {
             return results;

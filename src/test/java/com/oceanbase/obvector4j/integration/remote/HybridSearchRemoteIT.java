@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2024 OceanBase. All rights reserved.
+ *
+ * obvector4j is licensed under Mulan PSL v2.
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
+ * You may obtain a copy of Mulan PSL v2 at:
+ *
+ *     http://license.coscl.org.cn/MulanPSL2
+ *
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ *
+ * See the Mulan PSL v2 for more details.
+ */
+
 package com.oceanbase.obvector4j.integration.remote;
 
 import com.oceanbase.obvector4j.ObVecClient;
@@ -16,7 +32,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
@@ -37,7 +52,7 @@ public class HybridSearchRemoteIT extends RemoteOceanBaseTestBase {
         assumeRemoteAvailable();
     }
 
-    public void testOceanBaseVersionDetected() throws Throwable {
+    public void testOceanBaseVersionDetected() throws Exception {
         ObVecClient client = newClient();
         OceanBaseVersion version = client.getOceanBaseVersion();
         boolean hybridSql = client.supportsHybridSearchSql();
@@ -51,7 +66,7 @@ public class HybridSearchRemoteIT extends RemoteOceanBaseTestBase {
         }
     }
 
-    public void testScalarVectorSearchWithFilter() throws Throwable {
+    public void testScalarVectorSearchWithFilter() throws Exception {
         String table = HybridSearchTestFixtures.TABLE_PREFIX + "PRODUCTS";
         setupProductTable(table);
 
@@ -85,7 +100,7 @@ public class HybridSearchRemoteIT extends RemoteOceanBaseTestBase {
         assertFalse(productIds.contains(3));
     }
 
-    public void testTextVectorHybridSearch() throws Throwable {
+    public void testTextVectorHybridSearch() throws Exception {
         String table = HybridSearchTestFixtures.TABLE_PREFIX + "DOC_HYBRID";
         dropTableIfExists(table);
         execSql("CREATE TABLE `" + table + "` ("
@@ -127,7 +142,7 @@ public class HybridSearchRemoteIT extends RemoteOceanBaseTestBase {
         assertTrue("Results should include oceanbase mysql row", containsMysqlRow);
     }
 
-    public void testPureVectorSearch() throws Throwable {
+    public void testPureVectorSearch() throws Exception {
         String table = HybridSearchTestFixtures.TABLE_PREFIX + "DOC_VEC";
         dropTableIfExists(table);
         execSql("CREATE TABLE `" + table + "` ("
@@ -156,7 +171,7 @@ public class HybridSearchRemoteIT extends RemoteOceanBaseTestBase {
         assertEquals(1, Integer.parseInt(results.get(0).get("c1").toString()));
     }
 
-    public void testHybridSearchSqlNativePath() throws Throwable {
+    public void testHybridSearchSqlNativePath() throws Exception {
         ObVecClient client = newClient();
         assertTrue("HYBRID_SEARCH SQL requires OceanBase >= 4.6.0",
                 client.supportsHybridSearchSql());
@@ -182,7 +197,7 @@ public class HybridSearchRemoteIT extends RemoteOceanBaseTestBase {
         assertEquals(1, Integer.parseInt(results.get(0).get("c1").toString()));
     }
 
-    public void testCustomHybridSearchDsl() throws Throwable {
+    public void testCustomHybridSearchDsl() throws Exception {
         ObVecClient client = newClient();
         assertTrue(client.supportsHybridSearchSql());
 
@@ -218,7 +233,7 @@ public class HybridSearchRemoteIT extends RemoteOceanBaseTestBase {
     /**
      * doc_table style: HYBRID_SEARCH native SQL for text + vector RRF (4.6.0+).
      */
-    public void testHybridSearchTextVectorRrfNativeSql() throws Throwable {
+    public void testHybridSearchTextVectorRrfNativeSql() throws Exception {
         ObVecClient client = newClient();
         assertTrue(client.supportsHybridSearchSql());
 
@@ -263,7 +278,7 @@ public class HybridSearchRemoteIT extends RemoteOceanBaseTestBase {
     /**
      * HYBRID_SEARCH native SQL: text + vector with scalar Filter DSL (4.6.0+).
      */
-    public void testHybridSearchTextVectorWithFilterNativeSql() throws Throwable {
+    public void testHybridSearchTextVectorWithFilterNativeSql() throws Exception {
         ObVecClient client = newClient();
         assertTrue(client.supportsHybridSearchSql());
 
@@ -300,7 +315,7 @@ public class HybridSearchRemoteIT extends RemoteOceanBaseTestBase {
         }
     }
 
-    private void setupProductTable(String table) throws Throwable {
+    private void setupProductTable(String table) throws Exception {
         dropTableIfExists(table);
         execSql("CREATE TABLE `" + table + "` ("
                 + "product_id INT PRIMARY KEY, product_name VARCHAR(255), "

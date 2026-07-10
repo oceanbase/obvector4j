@@ -1,9 +1,8 @@
-# 05 · HYBRID_SEARCH DSL 语法与示例
+# HYBRID_SEARCH DSL 语法与示例
 
-> 阅读顺序：[00-文档目录](00-文档目录.md) → … → [03-混合搜索](03-混合搜索.md) → **05 DSL 语法** → [04-Filter过滤](04-Filter过滤.md)  
-> English: [05-hybrid-search-dsl](../en/05-hybrid-search-dsl.md)
+> English: [dsl](../en/dsl.md)
 
-本文专门介绍 OceanBase **4.6.0+** `HYBRID_SEARCH` 的 **JSON DSL 语法规则**、语义约束，以及 obvector4j **`hybrid.core`** 包中的 Java 构建方式。混合搜索概览与版本说明见 [03-混合搜索](03-混合搜索.md)。
+本文专门介绍 OceanBase **4.6.0+** `HYBRID_SEARCH` 的 **JSON DSL 语法规则**、语义约束，以及 obvector4j **`hybrid.core`** 包中的 Java 构建方式。混合搜索概览与版本说明见 [混合搜索](混合搜索.md)。
 
 ---
 
@@ -711,7 +710,7 @@ client.hybridSearch().customSearch()
 
 ### Filter 对象转 DSL
 
-`HybridDslKnn.filter(Filter)` 与 `HybridDslNode.filter(Filter)` 通过 `FilterMapper` 将 [FilterBuilder](04-Filter过滤.md) 转为 `term` / `range` / `bool` 条件列表。
+`HybridDslKnn.filter(Filter)` 与 `HybridDslNode.filter(Filter)` 通过 `FilterMapper` 将 [FilterBuilder](Filter过滤.md) 转为 `term` / `range` / `bool` 条件列表。
 
 ---
 
@@ -832,8 +831,8 @@ mvn test -Dtest=HybridSearchDocIT
 
 ## 相关文档
 
-- [← 03-混合搜索](03-混合搜索.md) — 概览、版本、兼容模式
-- [04-Filter过滤](04-Filter过滤.md) — FilterBuilder 与 DSL 转换
-- [02-项目与架构](02-项目与架构.md) — 包路径与 API 速查
-- [05-hybrid-search-dsl (EN)](../en/05-hybrid-search-dsl.md)
+- [混合搜索](混合搜索.md) — 概览、版本、兼容模式
+- [Filter 过滤](Filter过滤.md) — FilterBuilder 与 DSL 转换
+- [项目与架构](项目与架构.md) — 包路径与 API 速查
+- [dsl (EN)](../en/dsl.md)
 - [OceanBase 官方 HYBRID_SEARCH](https://www.oceanbase.com/docs/common-oceanbase-database-cn-1000000005682104)

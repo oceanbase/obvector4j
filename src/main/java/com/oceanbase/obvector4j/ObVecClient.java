@@ -1,6 +1,21 @@
+/*
+ * Copyright (c) 2024 OceanBase. All rights reserved.
+ *
+ * obvector4j is licensed under Mulan PSL v2.
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
+ * You may obtain a copy of Mulan PSL v2 at:
+ *
+ *     http://license.coscl.org.cn/MulanPSL2
+ *
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ *
+ * See the Mulan PSL v2 for more details.
+ */
+
 package com.oceanbase.obvector4j;
 
-import com.oceanbase.obvector4j.filter.Filter;
 import com.oceanbase.obvector4j.hybrid.HybridSearchEngine;
 import com.oceanbase.obvector4j.hybrid.core.HybridSearch;
 import com.oceanbase.obvector4j.hybrid.core.HybridSearchSupport;
@@ -24,7 +39,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,7 +48,7 @@ public class ObVecClient implements AutoCloseable {
     private OceanBaseVersion cachedVersion = null;
     private HybridSearchEngine hybridSearchEngine = null;
 
-    public ObVecClient(String uri, String user, String password) throws Throwable
+    public ObVecClient(String uri, String user, String password) throws Exception
     {
         try {
             conn = DriverManager.getConnection(uri, user, password);
@@ -57,12 +71,12 @@ public class ObVecClient implements AutoCloseable {
         if (hybridSearchEngine == null) {
             hybridSearchEngine = new HybridSearchEngine(conn, new HybridSearchEngine.VersionSupport() {
                 @Override
-                public boolean supportsHybridSearchSql() throws Throwable {
+                public boolean supportsHybridSearchSql() throws Exception {
                     return ObVecClient.this.supportsHybridSearchSql();
                 }
 
                 @Override
-                public OceanBaseVersion getOceanBaseVersion() throws Throwable {
+                public OceanBaseVersion getOceanBaseVersion() throws Exception {
                     return ObVecClient.this.getOceanBaseVersion();
                 }
             });
@@ -70,7 +84,7 @@ public class ObVecClient implements AutoCloseable {
         return hybridSearchEngine;
     }
 
-    public void setHNSWEfSearch(int val) throws Throwable {
+    public void setHNSWEfSearch(int val) throws Exception {
         try (Statement statement = conn.createStatement()) {
             String sql = String.format("SET @@ob_hnsw_ef_search = %d", val);
             statement.execute(sql);
@@ -79,7 +93,7 @@ public class ObVecClient implements AutoCloseable {
         }
     }
 
-    public int getHNSWEfSearch() throws Throwable {
+    public int getHNSWEfSearch() throws Exception {
         ArrayList<Integer> res = new ArrayList<>();
         try (Statement statement = conn.createStatement()) {
             String sql = String.format("show variables like 'ob_hnsw_ef_search'");
@@ -97,7 +111,7 @@ public class ObVecClient implements AutoCloseable {
         return res.get(0);
     }
 
-    public void dropCollection(String table_name) throws Throwable
+    public void dropCollection(String table_name) throws Exception
     {
         try (Statement statement = conn.createStatement()) {
             String sql = String.format("DROP TABLE IF EXISTS %s", table_name);
@@ -107,7 +121,7 @@ public class ObVecClient implements AutoCloseable {
         }
     }
 
-    public boolean hasCollection(String table_name) throws Throwable
+    public boolean hasCollection(String table_name) throws Exception
     {
         try {
             DatabaseMetaData metaData = conn.getMetaData();
@@ -119,7 +133,7 @@ public class ObVecClient implements AutoCloseable {
         }
     }
 
-    public void createCollection(String table_name, ObCollectionSchema collection) throws Throwable
+    public void createCollection(String table_name, ObCollectionSchema collection) throws Exception
     {
         try (Statement statement = conn.createStatement()) {
             String sql = String.format("CREATE TABLE %s (%s)%s",
@@ -130,7 +144,7 @@ public class ObVecClient implements AutoCloseable {
         }
     }
 
-    public void createIndex(String table_name, IndexParam index_param) throws Throwable
+    public void createIndex(String table_name, IndexParam index_param) throws Exception
     {
         try (Statement statement = conn.createStatement()) {
             String sql = String.format("CREATE VECTOR INDEX %s on %s(%s) %s",
@@ -149,9 +163,9 @@ public class ObVecClient implements AutoCloseable {
      * @param table_name Table name
      * @param index_name Index name
      * @param column_name Column name
-     * @throws Throwable
+     * @throws Exception
      */
-    public void createFulltextIndex(String table_name, String index_name, String column_name) throws Throwable
+    public void createFulltextIndex(String table_name, String index_name, String column_name) throws Exception
     {
         try (Statement statement = conn.createStatement()) {
             String sql = String.format("ALTER TABLE %s ADD FULLTEXT INDEX %s(%s)",
@@ -162,7 +176,7 @@ public class ObVecClient implements AutoCloseable {
         }
     }
 
-    public void insert(String table_name, String[] column_names, ArrayList<Sqlizable[]> rows) throws Throwable
+    public void insert(String table_name, String[] column_names, ArrayList<Sqlizable[]> rows) throws Exception
     {
         if (rows.isEmpty()) {
             return;
@@ -187,7 +201,7 @@ public class ObVecClient implements AutoCloseable {
             }
             preparedStatement.executeBatch();
             conn.commit();
-        } catch (Throwable e) {
+        } catch (Exception e) {
             if (conn != null) {
                 try {
                     conn.rollback();
@@ -203,7 +217,7 @@ public class ObVecClient implements AutoCloseable {
         }
     }
 
-    public void delete(String table_name, String primary_key_name, ArrayList<Sqlizable> primary_keys) throws Throwable
+    public void delete(String table_name, String primary_key_name, ArrayList<Sqlizable> primary_keys) throws Exception
     {
         ArrayList<String> param_str_list = new ArrayList<String>(Collections.nCopies(primary_keys.size(), "?"));
         String sql = String.format("DELETE FROM %s WHERE %s in (%s)",
@@ -227,10 +241,10 @@ public class ObVecClient implements AutoCloseable {
      * @param values New values for each row (must align with column_names)
      * @param primary_key_name Primary key column name
      * @param primary_keys Primary key values to identify rows (must align with values)
-     * @throws Throwable on error
+     * @throws Exception on error
      */
     public void update(String table_name, String[] column_names, ArrayList<Sqlizable[]> values,
-                       String primary_key_name, ArrayList<Sqlizable> primary_keys) throws Throwable
+                       String primary_key_name, ArrayList<Sqlizable> primary_keys) throws Exception
     {
         if (values.isEmpty()) {
             return;
@@ -261,7 +275,7 @@ public class ObVecClient implements AutoCloseable {
             }
             preparedStatement.executeBatch();
             conn.commit();
-        } catch (Throwable e) {
+        } catch (Exception e) {
             if (conn != null) {
                 try {
                     conn.rollback();
@@ -277,14 +291,14 @@ public class ObVecClient implements AutoCloseable {
         }
     }
 
-    public ArrayList<HashMap<String, Sqlizable>> query(String table_name, 
+    public ArrayList<HashMap<String, Sqlizable>> query(String table_name,
                       String vec_col_name,
                       String metric_type,
                       float[] qv,
                       int topk,
                       String[] output_fields,
                       DataType[] output_datatypes,
-                      String where_expr) throws Throwable
+                      String where_expr) throws Exception
     {
         ArrayList<HashMap<String, Sqlizable>> res = new ArrayList<>();
 
@@ -305,12 +319,14 @@ public class ObVecClient implements AutoCloseable {
                 ResultSetMetaData metaData = resultSet.getMetaData();
                 int project_count = metaData.getColumnCount();
                 if (project_count != output_datatypes.length) {
-                    throw new IllegalArgumentException(" the length of output_datatypes: " + output_datatypes.length + " mismatched with projected column size: " + project_count);
+                    throw new IllegalArgumentException(
+                            " the length of output_datatypes: " + output_datatypes.length
+                                    + " mismatched with projected column size: " + project_count);
                 }
-                
+
                 while (resultSet.next()) {
                     HashMap<String, Sqlizable> row = new HashMap<>();
-                    
+
                     for (int i = 1; i <= project_count; i++) {
                         String columnName = metaData.getColumnName(i);
                         Sqlizable sqlizable = SqlizableFactory.build(output_datatypes[i - 1], resultSet, columnName);
@@ -329,7 +345,7 @@ public class ObVecClient implements AutoCloseable {
     /**
      * Returns the connected OceanBase version (cached after first call).
      */
-    public OceanBaseVersion getOceanBaseVersion() throws Throwable {
+    public OceanBaseVersion getOceanBaseVersion() throws Exception {
         if (cachedVersion != null) {
             return cachedVersion;
         }
@@ -362,7 +378,7 @@ public class ObVecClient implements AutoCloseable {
     /**
      * Whether the connected OceanBase supports HYBRID_SEARCH SQL interface (4.6.0+).
      */
-    public boolean supportsHybridSearchSql() throws Throwable {
+    public boolean supportsHybridSearchSql() throws Exception {
         return getOceanBaseVersion().isAtLeast(OceanBaseVersion.HYBRID_SEARCH_SQL_MIN);
     }
 
@@ -380,7 +396,7 @@ public class ObVecClient implements AutoCloseable {
             int topk,
             String[] output_fields,
             DataType[] output_datatypes,
-            Integer rank_window_size) throws Throwable {
+            Integer rank_window_size) throws Exception {
         return hybridSearchEngine().textVectorSearch(
                 table_name, vec_col_name, metric_type, qv, text_fields, text_query,
                 filter_expr, topk, output_fields, output_datatypes, rank_window_size);
@@ -397,7 +413,7 @@ public class ObVecClient implements AutoCloseable {
             Object filter_expr,
             int topk,
             String[] output_fields,
-            DataType[] output_datatypes) throws Throwable {
+            DataType[] output_datatypes) throws Exception {
         return hybridSearchEngine().scalarVectorSearch(
                 table_name, vec_col_name, metric_type, qv, filter_expr,
                 topk, output_fields, output_datatypes);
@@ -409,11 +425,11 @@ public class ObVecClient implements AutoCloseable {
     /**
      * Infers column data type from table metadata. Used by hybrid search builders.
      */
-    public DataType inferColumnDataType(String tableName, String columnName) throws Throwable {
+    public DataType inferColumnDataType(String tableName, String columnName) throws Exception {
         return inferDataType(tableName, columnName);
     }
 
-    protected DataType inferDataType(String tableName, String columnName) throws Throwable {
+    protected DataType inferDataType(String tableName, String columnName) throws Exception {
         if (columnName == null || columnName.trim().isEmpty()) {
             throw new IllegalArgumentException("Column name cannot be null or empty");
         }
@@ -426,7 +442,7 @@ public class ObVecClient implements AutoCloseable {
                         return DataType.STRING;
                     }
                     typeName = typeName.toUpperCase();
-                    
+
                     if (typeName.contains("VECTOR") || typeName.contains("FLOAT_VECTOR")) {
                         return DataType.FLOAT_VECTOR;
                     } else if (typeName.contains("TINYINT")) {
@@ -461,7 +477,7 @@ public class ObVecClient implements AutoCloseable {
     /**
      * Execute arbitrary SQL (DDL/DML). Use {@link #querySql(String)} for SELECT.
      */
-    public void executeSql(String sql) throws Throwable {
+    public void executeSql(String sql) throws Exception {
         if (sql == null || sql.trim().isEmpty()) {
             throw new IllegalArgumentException("SQL cannot be empty");
         }
@@ -476,7 +492,7 @@ public class ObVecClient implements AutoCloseable {
      * Execute a SELECT and map rows to {@link Sqlizable} values.
      * Column types are inferred from JDBC metadata when not specified.
      */
-    public ArrayList<HashMap<String, Sqlizable>> querySql(String sql) throws Throwable {
+    public ArrayList<HashMap<String, Sqlizable>> querySql(String sql) throws Exception {
         if (sql == null || sql.trim().isEmpty()) {
             throw new IllegalArgumentException("SQL cannot be empty");
         }
@@ -514,7 +530,7 @@ public class ObVecClient implements AutoCloseable {
             String tableName,
             String dslJson,
             String[] outputFields,
-            DataType[] outputDataTypes) throws Throwable {
+            DataType[] outputDataTypes) throws Exception {
         HybridSearchSupport.require(getOceanBaseVersion());
         if (outputFields == null || outputFields.length == 0) {
             throw new IllegalArgumentException("Output fields must be set");
@@ -541,12 +557,12 @@ public class ObVecClient implements AutoCloseable {
      *
      * @throws UnsupportedOperationException if the connected cluster is below 4.6.0
      */
-    public HybridSearch hybridSearch() throws Throwable {
+    public HybridSearch hybridSearch() throws Exception {
         HybridSearchSupport.require(getOceanBaseVersion());
         return new HybridSearch(this);
     }
 
-    public HybridSearchCustomBuilder customHybridSearch() throws Throwable {
+    public HybridSearchCustomBuilder customHybridSearch() throws Exception {
         return hybridSearch().customSearch();
     }
 }

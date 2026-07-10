@@ -1,7 +1,6 @@
-# 04 · Filter 过滤条件
+# Filter 过滤条件
 
-> 阅读顺序：[00-文档目录](00-文档目录.md) → … → [03-混合搜索](03-混合搜索.md) → **04 Filter 过滤**  
-> English: [04-filter](../en/04-filter.md)
+> English: [filter](../en/filter.md)
 
 Filter API 用于在混合搜索中表达**标量过滤**（等于、范围、AND/OR 等），类型安全，推荐在 4.6.0+ 环境配合 `HYBRID_SEARCH` 使用。
 
@@ -113,4 +112,4 @@ client.textVectorSearch()
 3. 字段名与表列名一致
 4. 数值比较注意类型（`100.0` vs `100`）
 
-完整 API 列表见英文版 [04-filter](../en/04-filter.md)。
+完整 API 列表见英文版 [filter](../en/filter.md)。

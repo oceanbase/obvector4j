@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2024 OceanBase. All rights reserved.
+ *
+ * obvector4j is licensed under Mulan PSL v2.
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
+ * You may obtain a copy of Mulan PSL v2 at:
+ *
+ *     http://license.coscl.org.cn/MulanPSL2
+ *
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ *
+ * See the Mulan PSL v2 for more details.
+ */
+
 package com.oceanbase.obvector4j.filter;
 
 import org.json.simple.JSONArray;
@@ -32,7 +48,7 @@ public class FilterMapper {
      */
     private static void processFilter(Filter filter, JSONArray mustArray) {
         Filter.Type type = filter.getType();
-        
+
         switch (type) {
             case EQUAL:
                 addTermCondition(mustArray, filter.getKey(), filter.getValue());
@@ -73,7 +89,7 @@ public class FilterMapper {
                 JSONArray shouldArray = new JSONArray();
                 processFilterForOr(filter.getLeft(), shouldArray);
                 processFilterForOr(filter.getRight(), shouldArray);
-                
+
                 JSONObject boolObj = new JSONObject();
                 boolObj.put("should", shouldArray);
                 JSONObject boolWrapper = new JSONObject();
@@ -84,7 +100,7 @@ public class FilterMapper {
                 // For NOT, we need to create a must_not array
                 JSONArray mustNotArray = new JSONArray();
                 processFilterForNot(filter.getExpression(), mustNotArray);
-                
+
                 JSONObject boolObj2 = new JSONObject();
                 boolObj2.put("must_not", mustNotArray);
                 JSONObject boolWrapper2 = new JSONObject();
@@ -102,7 +118,7 @@ public class FilterMapper {
      */
     private static void processFilterForOr(Filter filter, JSONArray shouldArray) {
         Filter.Type type = filter.getType();
-        
+
         switch (type) {
             case EQUAL:
                 JSONObject termObj = createTermObject(filter.getKey(), filter.getValue());
@@ -166,7 +182,7 @@ public class FilterMapper {
      */
     private static void processFilterForNot(Filter filter, JSONArray mustNotArray) {
         Filter.Type type = filter.getType();
-        
+
         switch (type) {
             case EQUAL:
                 JSONObject termObj = createTermObject(filter.getKey(), filter.getValue());
@@ -227,7 +243,7 @@ public class FilterMapper {
             throw new IllegalArgumentException("Filter key cannot be null or empty");
         }
         String trimmedKey = key.trim();
-        
+
         JSONObject termObj = new JSONObject();
         JSONObject fieldObj = new JSONObject();
         Object convertedValue = convertValue(value);
@@ -261,10 +277,10 @@ public class FilterMapper {
             throw new IllegalArgumentException("Filter key cannot be null or empty");
         }
         String trimmedKey = key.trim();
-        
+
         // Check if there's already a range condition for this field
         JSONObject existingRange = findExistingRange(mustArray, trimmedKey);
-        
+
         if (existingRange != null) {
             // Merge with existing range
             JSONObject rangeObj = (JSONObject) existingRange.get("range");
@@ -287,7 +303,7 @@ public class FilterMapper {
             throw new IllegalArgumentException("Filter key cannot be null or empty");
         }
         String trimmedKey = key.trim();
-        
+
         JSONObject rangeObj = new JSONObject();
         JSONObject rangeFieldObj = new JSONObject();
         JSONObject fieldRangeObj = new JSONObject();
@@ -330,14 +346,14 @@ public class FilterMapper {
             // Empty IN means no matches
             return;
         }
-        
+
         // For IN, we create a should array with multiple term queries
         JSONArray shouldArray = new JSONArray();
         for (Object value : values) {
             JSONObject termObj = createTermObject(key, value);
             shouldArray.add(termObj);
         }
-        
+
         JSONObject boolObj = new JSONObject();
         boolObj.put("should", shouldArray);
         JSONObject boolWrapper = new JSONObject();
@@ -353,14 +369,14 @@ public class FilterMapper {
             // Empty NOT IN means all matches
             return;
         }
-        
+
         // For NOT IN, we create a must_not array with multiple term queries
         JSONArray mustNotArray = new JSONArray();
         for (Object value : values) {
             JSONObject termObj = createTermObject(key, value);
             mustNotArray.add(termObj);
         }
-        
+
         JSONObject boolObj = new JSONObject();
         boolObj.put("must_not", mustNotArray);
         JSONObject boolWrapper = new JSONObject();

@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2024 OceanBase. All rights reserved.
+ *
+ * obvector4j is licensed under Mulan PSL v2.
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
+ * You may obtain a copy of Mulan PSL v2 at:
+ *
+ *     http://license.coscl.org.cn/MulanPSL2
+ *
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ *
+ * See the Mulan PSL v2 for more details.
+ */
+
 package com.oceanbase.obvector4j.support;
 
 import java.sql.Connection;
@@ -45,7 +61,7 @@ public abstract class RemoteOceanBaseTestBase extends junit.framework.TestCase {
                     stmt.execute("SELECT 1");
                 }
                 skipReason = null;
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 remoteEnabled = false;
                 skipReason = "Remote OceanBase unavailable: " + e.getMessage();
             }
@@ -60,7 +76,7 @@ public abstract class RemoteOceanBaseTestBase extends junit.framework.TestCase {
         super(name);
     }
 
-    protected com.oceanbase.obvector4j.ObVecClient newClient() throws Throwable {
+    protected com.oceanbase.obvector4j.ObVecClient newClient() throws Exception {
         return new com.oceanbase.obvector4j.ObVecClient(jdbcUri, user, password);
     }
 

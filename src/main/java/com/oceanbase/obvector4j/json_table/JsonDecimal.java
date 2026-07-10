@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2024 OceanBase. All rights reserved.
+ *
+ * obvector4j is licensed under Mulan PSL v2.
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
+ * You may obtain a copy of Mulan PSL v2 at:
+ *
+ *     http://license.coscl.org.cn/MulanPSL2
+ *
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ *
+ * See the Mulan PSL v2 for more details.
+ */
+
 package com.oceanbase.obvector4j.json_table;
 
 import java.math.BigDecimal;
@@ -14,20 +30,20 @@ public class JsonDecimal extends JsonData {
         if (val == null) {
             return null;
         }
-        
+
         String decimalStr = val.stripTrailingZeros().toPlainString();
         String[] parts = decimalStr.split("\\.");
-        
+
         String integerPart = parts[0];
         String decimalPart = parts.length > 1 ? parts[1] : "";
-        
+
         int integerCount = integerPart.replace("-", "").length(); // Exclude the negative sign
         int decimalCount = decimalPart.length();
 
         if (integerCount + Math.min(decimalCount, precise) > ndigit) {
             throw new IllegalArgumentException("'" + val + "' Range out of Decimal(" + ndigit + ", " + precise + ")");
         }
-        
+
         if (decimalCount > precise) {
             return val.setScale(precise, RoundingMode.DOWN);
         }
@@ -41,5 +57,5 @@ public class JsonDecimal extends JsonData {
         }
         return val.toString();
     }
-    
+
 }

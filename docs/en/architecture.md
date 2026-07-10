@@ -1,7 +1,6 @@
-# 02 · Architecture
+# Architecture
 
-> Read in order: [01-getting-started](01-getting-started.md) → **02** → [03-hybrid-search](03-hybrid-search.md) → [04-filter](04-filter.md)  
-> 中文：[02-项目与架构](../zh/02-项目与架构.md)
+> 中文：[项目与架构](../zh/项目与架构.md)
 
 ---
 
@@ -58,15 +57,13 @@ Use `client.supportsHybridSearchSql()` at runtime.
 ## Tests
 
 ```bash
-mvn test                  # unit only
-mvn test -Pintegration    # + Testcontainers
+make unit-test            # unit only
+make test                 # + Testcontainers
 mvn test -Premote-it      # remote cluster (env vars required)
 ```
 
 ## Related
 
-| Doc | Topic |
-|-----|-------|
-| [01-getting-started](01-getting-started.md) | Install & quick start |
-| [03-hybrid-search](03-hybrid-search.md) | Hybrid search & DSL reference |
-| [04-filter](04-filter.md) | Filter API reference |
+- [Getting Started](getting-started.md) — install & quick start
+- [Hybrid Search](hybrid-search.md) — hybrid search & DSL reference
+- [Filter API](filter.md) — filter API reference

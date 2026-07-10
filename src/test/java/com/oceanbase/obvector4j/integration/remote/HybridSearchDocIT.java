@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2024 OceanBase. All rights reserved.
+ *
+ * obvector4j is licensed under Mulan PSL v2.
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
+ * You may obtain a copy of Mulan PSL v2 at:
+ *
+ *     http://license.coscl.org.cn/MulanPSL2
+ *
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ *
+ * See the Mulan PSL v2 for more details.
+ */
+
 package com.oceanbase.obvector4j.integration.remote;
 
 import com.oceanbase.obvector4j.ObVecClient;
@@ -45,7 +61,7 @@ public class HybridSearchDocIT extends RemoteOceanBaseTestBase {
         }
     }
 
-    private ObVecClient prepareHybridClient() throws Throwable {
+    private ObVecClient prepareHybridClient() throws Exception {
         ObVecClient client = newClient();
         Assume.assumeTrue("HYBRID_SEARCH DSL requires OceanBase >= 4.6.0",
                 client.supportsHybridSearchSql());
@@ -64,7 +80,7 @@ public class HybridSearchDocIT extends RemoteOceanBaseTestBase {
         }
     }
 
-    public void testHybridSearchEntryRequiresVersion() throws Throwable {
+    public void testHybridSearchEntryRequiresVersion() throws Exception {
         ObVecClient client = prepareHybridClient();
         HybridSearchSupport.require(client.getOceanBaseVersion());
         HybridSearch hs = client.hybridSearch();
@@ -72,7 +88,7 @@ public class HybridSearchDocIT extends RemoteOceanBaseTestBase {
     }
 
     /** Document: single-path knn vector search */
-    public void testKnnOnly() throws Throwable {
+    public void testKnnOnly() throws Exception {
         ObVecClient client = prepareHybridClient();
         ArrayList<HashMap<String, Sqlizable>> rows = client.hybridSearch()
                 .customSearch()
@@ -86,7 +102,7 @@ public class HybridSearchDocIT extends RemoteOceanBaseTestBase {
     }
 
     /** Document: knn + scalar filter (range id >= 5) */
-    public void testKnnWithRangeFilter() throws Throwable {
+    public void testKnnWithRangeFilter() throws Exception {
         ObVecClient client = prepareHybridClient();
         ArrayList<HashMap<String, Sqlizable>> rows = client.hybridSearch()
                 .customSearch()
@@ -102,7 +118,7 @@ public class HybridSearchDocIT extends RemoteOceanBaseTestBase {
     }
 
     /** Document: single-path full-text match */
-    public void testMatchOnly() throws Throwable {
+    public void testMatchOnly() throws Exception {
         ObVecClient client = prepareHybridClient();
         ArrayList<HashMap<String, Sqlizable>> rows = client.hybridSearch()
                 .customSearch()
@@ -122,7 +138,7 @@ public class HybridSearchDocIT extends RemoteOceanBaseTestBase {
     }
 
     /** Document: full-text + bool filter (range id >= 5) */
-    public void testMatchWithBoolFilter() throws Throwable {
+    public void testMatchWithBoolFilter() throws Exception {
         ObVecClient client = prepareHybridClient();
         ArrayList<HashMap<String, Sqlizable>> rows = client.hybridSearch()
                 .customSearch()
@@ -140,7 +156,7 @@ public class HybridSearchDocIT extends RemoteOceanBaseTestBase {
     }
 
     /** Document explain: bool must match + filter range + knn */
-    public void testHybridBoolMatchFilterKnn() throws Throwable {
+    public void testHybridBoolMatchFilterKnn() throws Exception {
         ObVecClient client = prepareHybridClient();
         ArrayList<HashMap<String, Sqlizable>> rows = client.hybridSearch()
                 .customSearch()
@@ -166,7 +182,7 @@ public class HybridSearchDocIT extends RemoteOceanBaseTestBase {
     }
 
     /** Document: multi-path knn array */
-    public void testMultiKnn() throws Throwable {
+    public void testMultiKnn() throws Exception {
         ObVecClient client = prepareHybridClient();
         ArrayList<HashMap<String, Sqlizable>> rows = client.hybridSearch()
                 .customSearch()
@@ -181,7 +197,7 @@ public class HybridSearchDocIT extends RemoteOceanBaseTestBase {
     }
 
     /** Document: text + vector + RRF */
-    public void testTextVectorRrf() throws Throwable {
+    public void testTextVectorRrf() throws Exception {
         ObVecClient client = prepareHybridClient();
         String dsl = HybridDsl.textVectorRrf(
                 HybridDsl.match("content", "python javascript"),
@@ -193,7 +209,7 @@ public class HybridSearchDocIT extends RemoteOceanBaseTestBase {
     }
 
     /** Document: WRRF with boost on query and knn */
-    public void testTextVectorWrrfWithBoost() throws Throwable {
+    public void testTextVectorWrrfWithBoost() throws Exception {
         ObVecClient client = prepareHybridClient();
         ArrayList<HashMap<String, Sqlizable>> rows = client.hybridSearch()
                 .customSearch()
@@ -210,7 +226,7 @@ public class HybridSearchDocIT extends RemoteOceanBaseTestBase {
     }
 
     /** Document: weighted_sum minmax + min_score */
-    public void testWeightedSumMinmaxWithMinScore() throws Throwable {
+    public void testWeightedSumMinmaxWithMinScore() throws Exception {
         ObVecClient client = prepareHybridClient();
         ArrayList<HashMap<String, Sqlizable>> rows = client.hybridSearch()
                 .customSearch()
@@ -228,7 +244,7 @@ public class HybridSearchDocIT extends RemoteOceanBaseTestBase {
     }
 
     /** Document: bool should + filter (default minimum_should_match=0 when filter present) */
-    public void testBoolShouldWithFilter() throws Throwable {
+    public void testBoolShouldWithFilter() throws Exception {
         ObVecClient client = prepareHybridClient();
         ArrayList<HashMap<String, Sqlizable>> rows = client.hybridSearch()
                 .customSearch()
@@ -248,7 +264,7 @@ public class HybridSearchDocIT extends RemoteOceanBaseTestBase {
     }
 
     /** Document: bool should + filter + explicit minimum_should_match */
-    public void testBoolShouldMinimumShouldMatch() throws Throwable {
+    public void testBoolShouldMinimumShouldMatch() throws Exception {
         ObVecClient client = prepareHybridClient();
         ArrayList<HashMap<String, Sqlizable>> rows = client.hybridSearch()
                 .customSearch()
@@ -267,7 +283,7 @@ public class HybridSearchDocIT extends RemoteOceanBaseTestBase {
     }
 
     /** Document: array_contains filter */
-    public void testArrayContains() throws Throwable {
+    public void testArrayContains() throws Exception {
         ObVecClient client = prepareHybridClient();
         ArrayList<HashMap<String, Sqlizable>> rows = client.hybridSearch()
                 .customSearch()
@@ -282,7 +298,7 @@ public class HybridSearchDocIT extends RemoteOceanBaseTestBase {
     }
 
     /** Document: json_extract via dotted field term (doc_json.name) */
-    public void testJsonExtractTerm() throws Throwable {
+    public void testJsonExtractTerm() throws Exception {
         ObVecClient client = prepareHybridClient();
         ArrayList<HashMap<String, Sqlizable>> rows = client.hybridSearch()
                 .customSearch()
