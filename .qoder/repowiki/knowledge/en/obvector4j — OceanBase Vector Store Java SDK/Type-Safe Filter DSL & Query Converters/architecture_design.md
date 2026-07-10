@@ -1,0 +1,7 @@
+The package centers on a single immutable expression tree rooted at `Filter`, whose nested `Filter.Type` enum enumerates comparison (`EQUAL`, `NOT_EQUAL`, range ops, `IN`/`NOT_IN`, `CONTAINS`) and logical (`AND`, `OR`, `NOT`) operators. All constructors are private; mutation is impossible — new trees are built exclusively through static factory methods (`equal`, `and`, `or`, `not`, …) exposed on `Filter`.
+
+Two independent output-format visitors sit on top of this AST:
+- `FilterMapper` (depends on `org.json.simple` `JSONArray`/`JSONObject`) walks the tree and emits a flat condition list for HYBRID_SEARCH `knn.filter` / `query.bool.filter`. It flattens `IN` into a `should` array, wraps `!=` as `bool.must_not`, collapses multiple range predicates on the same field by merging them via `findExistingRange`, and translates `CONTAINS` to a wildcard term.
+- `FilterSqlConverter` is a stateless, final utility class with no external dependencies that renders the same AST into a backtick-quoted SQL WHERE fragment, escaping string literals via `escapeSqlString`.
+
+`FilterBuilder` provides a fluent `key(...).isEqualTo(...)` entry point while delegating logical combinators to `Filter.and/or/not`. Dependency direction is strictly one-way: both converters depend only on `Filter`; nothing in the package depends on them. The package Javadoc in `package-info.java` declares the scope as "type-safe filter DSL and converters for hybrid search WHERE / JSON DSL clauses".

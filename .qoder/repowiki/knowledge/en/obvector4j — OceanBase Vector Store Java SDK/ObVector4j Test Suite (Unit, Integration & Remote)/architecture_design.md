@@ -1,0 +1,6 @@
+Three-layer layout under `com.oceanbase.obvector4j`:
+- `unit/` — pure-Java tests of the v460 hybrid-search DSL (`HybridDsl`, `HybridSearchDsl`, `FilterBuilder`) that assert JSON fragments contain expected keys; no network or DB dependency.
+- `integration/container/` — JUnit 3 `TestCase`s (`VecClientTest`, `HybridSearchTest`) that spin up an `OceanBaseCEContainer` via Testcontainers, create collections with `ObCollectionSchema`/`IndexParams`, insert `Sqlizable[]` rows, then exercise `ObVecClient.textVectorSearch()` / `scalarVectorSearch()` / original `hybridTextVectorSearch()` APIs.
+- `integration/remote/` — `*RemoteIT` variants targeting an externally provisioned OceanBase 4.6.0 cluster (see `RemoteOceanBaseTestBase`).
+- `support/` — shared runtime: `OceanBaseContainerTestBase` lazily starts/stops the container and resolves JDBC credentials from `OCEANBASE_URI`/`OCEANBASE_USER`/`OCEANBASE_PASSWORD` env vars (falling back to defaults); `OceanBaseTestSupport` exposes static JDBC helpers; `HybridSearchTestFixtures` holds DDL constants and a `SqlExecutor` SPI used by remote ITs; `RemoteOceanBaseTestBase` mirrors the container base for the remote path.
+Dependency direction is one-way: integration and remote tests depend on `support`; unit tests depend only on the production DSL package and never touch `support`.

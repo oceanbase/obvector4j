@@ -1,0 +1,8 @@
+schema_version: 1
+module_path: hybrid_search
+title: Hybrid Search (Legacy + 4.6.0+ DSL)
+scope:
+    - src/main/java/com/oceanbase/obvector4j/hybrid/
+source_files: []
+depends_on: []
+related_to: []

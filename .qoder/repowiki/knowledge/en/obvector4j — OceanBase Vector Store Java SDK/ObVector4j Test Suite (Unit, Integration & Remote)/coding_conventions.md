@@ -1,0 +1,5 @@
+- Integration test classes extend `junit.framework.TestCase` and expose a static `suite()` returning `new TestSuite(...)` instead of using annotations.
+- Each integration test class bootstraps the database in a `static { ... }` block by loading `com.oceanbase.jdbc.Driver` and calling `OceanBaseContainerTestBase.initContainer()` once per JVM.
+- Database credentials are always resolved through `OceanBaseContainerTestBase.getJdbcUrl()/getUsername()/getPassword()` so tests support both containerized and external environments transparently.
+- DDL and index-creation statements are kept in dedicated fixture classes (`HybridSearchTestFixtures`, `OceanBaseTestSupport`) rather than inline inside test methods.
+- Assertions rely on string containment checks against the DSL's JSON output (`assertTrue(dsl.contains(...))`) rather than full object equality.

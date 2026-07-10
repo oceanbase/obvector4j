@@ -1,0 +1,8 @@
+schema_version: 1
+module_path: json_table
+title: JSON Virtual Table Column Model & Typed Value Wrappers
+scope:
+    - src/main/java/com/oceanbase/obvector4j/json_table/
+source_files: []
+depends_on: []
+related_to: []

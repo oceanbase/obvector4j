@@ -1,0 +1,1 @@
+JUnit-based test suite exercising ObVecClient CRUD, hybrid search DSL generation, and end-to-end vector/full-text queries against a live OceanBase instance.

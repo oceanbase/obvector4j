@@ -1,0 +1,1 @@
+Defines typed JSON value wrappers and column metadata for the internal JSON virtual table feature consumed by ObVecJsonClient.

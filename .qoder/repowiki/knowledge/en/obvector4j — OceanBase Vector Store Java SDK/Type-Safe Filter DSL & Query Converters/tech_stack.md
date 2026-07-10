@@ -1,0 +1,1 @@
+Built on `org.json.simple` (`JSONArray`/`JSONObject`) for the JSON converter; pure Java otherwise with no external runtime beyond the standard library.

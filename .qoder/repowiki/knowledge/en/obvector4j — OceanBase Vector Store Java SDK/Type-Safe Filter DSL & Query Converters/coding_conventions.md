@@ -1,0 +1,4 @@
+- Immutable expression nodes: `Filter` fields are `final`, all constructors are private, and mutation is impossible — new trees are built exclusively through static factory methods.
+- Operator dispatch via a single `switch (filter.getType())` block repeated across `processFilter`, `processFilterForOr`, and `processFilterForNot`, keeping each output-format visitor self-contained.
+- Key validation performed at every leaf-node boundary (`createTermObject`, `addRangeCondition`, etc.) by throwing `IllegalArgumentException` on null/empty keys rather than propagating up.
+- Logical combinators (`and`, `or`, `not`) exposed both as `Filter.<op>` static factories and as convenience delegates in `FilterBuilder`, so callers can choose between static-call and fluent styles.

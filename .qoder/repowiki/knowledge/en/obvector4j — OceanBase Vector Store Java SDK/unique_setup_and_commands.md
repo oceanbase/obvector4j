@@ -1,0 +1,1 @@
+`mvn clean test` runs only unit tests; add `-Pintegration` to also run container-based integration tests (Testcontainers starts an OceanBase image automatically); `-Premote-it` targets tests that connect to an externally provisioned cluster; `-Pall-tests` runs both suites. CI on push/PR executes `mvn clean test -Pintegration` on ubuntu-latest with Temurin JDK 8.

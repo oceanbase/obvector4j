@@ -1,0 +1,4 @@
+- Each DSL keyword has a pair of factory methods — one accepting typed arguments (e.g. `match(field, query)`) and one returning a `HybridDslNode` for further `.param(...)` chaining (e.g. `match(field)`).
+- Public setters validate inputs eagerly by throwing `IllegalArgumentException` with a message naming the offending field (e.g. "query expression cannot be null", "size must be > 0").
+- Keyword names are never string-literalized at call sites; they are referenced exclusively through constants in `HybridDslKeys` (including nested keys like `Normalizer.MINMAX`).
+- Fluent builders return `this` so calls can be chained, and the terminal `search()` method performs all preconditions (table name, output fields, version check) before delegating to `client.hybridSearchWithDsl`.

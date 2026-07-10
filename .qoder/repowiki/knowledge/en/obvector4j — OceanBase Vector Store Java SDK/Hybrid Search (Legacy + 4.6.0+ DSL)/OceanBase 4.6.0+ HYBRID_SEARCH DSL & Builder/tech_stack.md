@@ -1,0 +1,1 @@
+JSON built via `org.json.simple` (`JSONObject`/`JSONArray`/`JSONParser`); version gating uses `com.oceanbase.obvector4j.version.OceanBaseVersion#HYBRID_SEARCH_SQL_MIN`.

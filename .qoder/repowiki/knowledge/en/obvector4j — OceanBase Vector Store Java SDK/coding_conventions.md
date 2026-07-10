@@ -1,0 +1,4 @@
+- Server-feature gating is done through the shared `schema` version-check helpers rather than per-client try/catch blocks.
+- SQL fragments are assembled via jsqlparser ASTs instead of string concatenation, keeping generated statements parseable and version-aware.
+- Vector distance metrics are resolved through the schema's metric registry so callers never hard-code metric names.
+- Tests are organised under `**/unit/**`, `**/integration/container/**`, and `**/integration/remote/**` packages so Surefire profiles can include them by glob.

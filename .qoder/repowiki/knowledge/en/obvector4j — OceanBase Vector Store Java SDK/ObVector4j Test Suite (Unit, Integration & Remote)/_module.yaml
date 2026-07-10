@@ -1,0 +1,8 @@
+schema_version: 1
+module_path: tests
+title: ObVector4j Test Suite (Unit, Integration & Remote)
+scope:
+    - src/test/java/com/oceanbase/obvector4j/
+source_files: []
+depends_on: []
+related_to: []

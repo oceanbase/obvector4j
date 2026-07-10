@@ -1,0 +1,1 @@
+Legacy (<4.6.0) hybrid search path that merges full-text and vector results via RRF, plus version-adaptive builders delegating to the new HYBRID_SEARCH DSL when available.

@@ -1,0 +1,107 @@
+# 知识卡导出索引文件
+schema_version: 1
+locale: en-US
+branch: main
+nodes_managed: true
+exported_at: "2026-07-10T06:02:51Z"
+modules:
+    "":
+        dir_name: obvector4j — OceanBase Vector Store Java SDK
+        title: obvector4j — OceanBase Vector Store Java SDK
+        scope:
+            - README.md
+            - .gitignore
+            - pom.xml
+            - .github/workflows/ci.yml
+        source_files: []
+        children:
+            - filter
+            - hybrid_search
+            - json_table
+            - schema
+            - sql_model
+            - tests
+        depends_on: []
+        related_to: []
+    filter:
+        dir_name: Type-Safe Filter DSL & Query Converters
+        title: Type-Safe Filter DSL & Query Converters
+        scope:
+            - src/main/java/com/oceanbase/obvector4j/filter/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    hybrid_search:
+        dir_name: Hybrid Search (Legacy + 4.6.0+ DSL)
+        title: Hybrid Search (Legacy + 4.6.0+ DSL)
+        scope:
+            - src/main/java/com/oceanbase/obvector4j/hybrid/
+        source_files: []
+        children:
+            - hybrid_search/core
+            - hybrid_search/v460
+        depends_on: []
+        related_to: []
+    hybrid_search/core:
+        dir_name: Hybrid Search Engine & Legacy Builders
+        title: Hybrid Search Engine & Legacy Builders
+        scope:
+            - src/main/java/com/oceanbase/obvector4j/hybrid/AbstractHybridSearchBuilder.java
+            - src/main/java/com/oceanbase/obvector4j/hybrid/HybridResultMerger.java
+            - src/main/java/com/oceanbase/obvector4j/hybrid/HybridScalarVectorSearchBuilder.java
+            - src/main/java/com/oceanbase/obvector4j/hybrid/HybridSearchEngine.java
+            - src/main/java/com/oceanbase/obvector4j/hybrid/HybridTextVectorSearchBuilder.java
+            - src/main/java/com/oceanbase/obvector4j/hybrid/OutputFieldValidator.java
+            - src/main/java/com/oceanbase/obvector4j/hybrid/package-info.java
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    hybrid_search/v460:
+        dir_name: OceanBase 4.6.0+ HYBRID_SEARCH DSL & Builder
+        title: OceanBase 4.6.0+ HYBRID_SEARCH DSL & Builder
+        scope:
+            - src/main/java/com/oceanbase/obvector4j/hybrid/v460/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    json_table:
+        dir_name: JSON Virtual Table Column Model & Typed Value Wrappers
+        title: JSON Virtual Table Column Model & Typed Value Wrappers
+        scope:
+            - src/main/java/com/oceanbase/obvector4j/json_table/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    schema:
+        dir_name: Schema Model, Type Mapping & Version Gating
+        title: Schema Model, Type Mapping & Version Gating
+        scope:
+            - src/main/java/com/oceanbase/obvector4j/schema/
+            - src/main/java/com/oceanbase/obvector4j/util/
+            - src/main/java/com/oceanbase/obvector4j/version/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    sql_model:
+        dir_name: JDBC-Bound SQL Value Types
+        title: JDBC-Bound SQL Value Types
+        scope:
+            - src/main/java/com/oceanbase/obvector4j/model/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    tests:
+        dir_name: ObVector4j Test Suite (Unit, Integration & Remote)
+        title: ObVector4j Test Suite (Unit, Integration & Remote)
+        scope:
+            - src/test/java/com/oceanbase/obvector4j/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
