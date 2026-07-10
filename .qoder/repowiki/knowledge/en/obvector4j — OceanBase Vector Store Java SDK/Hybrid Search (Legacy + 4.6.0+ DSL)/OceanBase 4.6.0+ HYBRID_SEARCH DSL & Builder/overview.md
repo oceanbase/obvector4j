@@ -1,1 +1,0 @@
-Client-side builders and keyword-driven DSL for OceanBase 4.6.0+ HYBRID_SEARCH SQL, combining full-text query, KNN vector search, and ranking into a JSON document.

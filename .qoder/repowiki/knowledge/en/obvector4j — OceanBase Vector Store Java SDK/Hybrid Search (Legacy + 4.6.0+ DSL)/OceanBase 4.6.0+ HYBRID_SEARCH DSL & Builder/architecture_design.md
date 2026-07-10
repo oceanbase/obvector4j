@@ -1,8 +1,0 @@
-Two-layer design inside `com.oceanbase.obvector4j.hybrid.v460`:
-
-- Entry layer (`HybridSearch460`) is obtained from `ObVecClient#hybridSearch460()` and exposes three paths: `dsl()` returning a mutable `HybridSearchDsl` document, `customSearch()` returning `HybridSearchCustomBuilder`, and `searchWithDsl(String)` for raw JSON.
-- Document layer (`HybridSearchDsl`) holds optional top-level fields `query`, `knn`, `rank`, `from`, `size`, `min_score` plus an escape hatch `rawDsl`; `toJsonString()` serializes them using `org.json.simple` and enforces that at least one of `query`/`knn` is set.
-- Keyword DSL sub-package `dsl/` provides typed factories: `HybridDsl` (static entry with `match`, `multiMatch`, `queryString`, `term`, `range`, `terms`, `jsonContains`, `bool`, `knn`, `rrf`, `weightedSum`, and convenience shortcuts like `textVectorRrf`), `HybridDslNode` (low-level node builder), `HybridDslExpr` / `HybridDslKnn` / `HybridDslRank` (expression types), and `HybridDslKeys` (all fixed JSON key constants).
-- Execution layer: `HybridSearchCustomBuilder` extends `AbstractHybridSearchBuilder` (shared table/output-field plumbing) and delegates to `HybridSearchDsl` for section assembly; both it and `HybridSearch460Support.require(...)` gate execution on `OceanBaseVersion.HYBRID_SEARCH_SQL_MIN`, rejecting clusters below 4.6.0. The final call goes through `client.hybridSearchWithDsl(tableName, dslJson, outputFields, outputDataTypes)`.
-
-Dependency direction is strictly inward: `HybridSearchCustomBuilder` → `HybridSearchDsl` → `dsl/*`; nothing in this module depends on sibling version packages.

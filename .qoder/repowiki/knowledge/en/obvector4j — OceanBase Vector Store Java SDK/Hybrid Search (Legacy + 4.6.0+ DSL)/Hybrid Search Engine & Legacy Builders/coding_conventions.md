@@ -1,4 +1,0 @@
-- Fluent builder methods return `this` typed as the concrete builder class extending `AbstractHybridSearchBuilder<T>` so callers can chain without casts.
-- Input validation throws `IllegalArgumentException` with a descriptive message for missing table name, empty query vector, or empty text fields before any I/O occurs.
-- Output field resolution trims and drops null/empty entries, then either infers `DataType[]` from the schema or requires an explicit parallel array, asserting equal lengths.
-- Runtime feature detection uses an injected `VersionSupport` interface rather than direct version checks, allowing the same code to switch between HYBRID_SEARCH DSL and legacy SQL paths.

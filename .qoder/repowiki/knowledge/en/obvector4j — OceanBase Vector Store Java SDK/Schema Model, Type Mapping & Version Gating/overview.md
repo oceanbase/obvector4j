@@ -1,1 +1,0 @@
-Defines the in-memory schema model for OceanBase vector tables and provides utilities to render DDL fragments, map JDBC types, resolve vector distance metrics, and gate features by server version.

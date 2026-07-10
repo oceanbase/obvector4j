@@ -1,4 +1,0 @@
-- Schema value objects are constructed through chained fluent setter methods returning `this` (e.g. `Name()`, `DataType()`, `IsPrimary()`, `M()`, `EfConstruction()`) rather than overloaded constructors.
-- Every schema node extends `Visitable` and implements `String visit()` to produce its SQL fragment, letting composite nodes (`ObCollectionSchema`, `IndexParams`) recursively assemble larger DDL strings.
-- Validation of required parameters is performed eagerly inside `visit()` (or a dedicated `checkIsValid()` helper), throwing `UnsupportedOperationException` with a descriptive message instead of returning null.
-- Utility helpers are final classes with private constructors exposing only static methods, keeping them stateless and free of instantiation overhead.

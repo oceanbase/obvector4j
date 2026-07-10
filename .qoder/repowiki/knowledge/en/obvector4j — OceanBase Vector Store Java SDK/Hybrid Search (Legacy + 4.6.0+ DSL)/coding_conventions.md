@@ -1,2 +1,0 @@
-- Each versioned sub-package (`core/`, `v460/`) exposes its own `package-info.java` declaring the package-level API surface.
-- Version-specific builders implement the same abstract base/interface from `core/` so the caller-facing API stays identical across versions.

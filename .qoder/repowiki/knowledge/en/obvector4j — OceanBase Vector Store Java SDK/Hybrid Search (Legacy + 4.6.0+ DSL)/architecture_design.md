@@ -1,4 +1,0 @@
-Two parallel implementations share the same public contract so callers never branch on version:
-- `core/` provides the legacy `<4.6.0` path: `AbstractHybridSearchBuilder` builds separate full-text and KNN queries, then `HybridResultMerger` re-ranks via Reciprocal Rank Fusion; `HybridScalarVectorSearchBuilder` / `HybridTextVectorSearchBuilder` are the concrete entry points.
-- `v460/` provides the new 4.6.0+ path: keyword-driven `HybridDsl*` classes assemble a JSON document consumed by the server-side `HYBRID_SEARCH` function, with `HybridSearch460Support` auto-switching between old and new builders at runtime.
-The two paths are wired together through shared interfaces in `core/` (`HybridSearchEngine`, `OutputFieldValidator`) and the version-adaptive factory in `HybridSearch460Support`, which is the single place where the 4.6.0 feature flag is checked and the appropriate child implementation is selected.

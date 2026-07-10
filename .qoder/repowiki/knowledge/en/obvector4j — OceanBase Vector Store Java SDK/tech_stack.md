@@ -1,1 +1,0 @@
-Java 8 bytecode, Maven single-module build, JUnit 4 + Surefire, Testcontainers with the official `oceanbase` module for integration tests, SLF4J Simple for test logging, jsqlparser 4.7 (downgraded from 5.x for Java 8), json-simple, and the official `com.oceanbase:oceanbase-client:2.4.1` driver.

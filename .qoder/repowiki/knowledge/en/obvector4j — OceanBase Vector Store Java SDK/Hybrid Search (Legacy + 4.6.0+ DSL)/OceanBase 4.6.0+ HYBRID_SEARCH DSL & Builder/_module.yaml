@@ -1,8 +1,0 @@
-schema_version: 1
-module_path: hybrid_search/v460
-title: OceanBase 4.6.0+ HYBRID_SEARCH DSL & Builder
-scope:
-    - src/main/java/com/oceanbase/obvector4j/hybrid/v460/
-source_files: []
-depends_on: []
-related_to: []

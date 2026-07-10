@@ -1,1 +1,0 @@
-Unified hybrid search API that exposes a single builder interface, delegating to the legacy RRF path or the OceanBase 4.6.0+ HYBRID_SEARCH SQL DSL depending on server capability.

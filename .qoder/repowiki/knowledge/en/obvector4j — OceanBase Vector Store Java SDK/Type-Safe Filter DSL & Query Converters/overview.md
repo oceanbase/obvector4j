@@ -1,1 +1,0 @@
-Defines an immutable, composable Filter AST with fluent builders and converts it to OceanBase JSON hybrid-search clauses or backtick-quoted SQL WHERE fragments.

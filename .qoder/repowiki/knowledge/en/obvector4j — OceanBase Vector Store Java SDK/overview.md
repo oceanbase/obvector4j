@@ -1,1 +1,0 @@
-Single Maven artifact that bundles a type-safe filter DSL, hybrid-search builder, JSON virtual-table model, JDBC-bound SQL types, and schema utilities for querying OceanBase vector tables.

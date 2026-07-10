@@ -1,1 +1,0 @@
-JUnit 3 (`junit.framework.TestCase` + `TestSuite.suite()`) rather than JUnit 4/5; Testcontainers `oceanbase/oceanbase-ce:latest` with `MODE=slim` and a `wait.forLogMessage(".*boot success!.*")` strategy; `json-simple` for building expected DSL fragments in unit tests.

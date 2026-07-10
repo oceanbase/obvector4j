@@ -1,4 +1,0 @@
-- Each primitive SQL type has its own `Json*` wrapper class extending the common `JsonData` abstract base and implementing `toJson()`.
-- Type selection follows a two-level switch: `JsonTableColumn.getJsonDataFactory` maps a raw JDBC type string to a `JsonDataType` enum, then `JsonDataFactory.build` switches on that enum to pick the concrete `JsonData` subclass.
-- String-based type descriptors (e.g. `VARCHAR(n)`, `DECIMAL(p,s)`) are parsed with `java.util.regex.Pattern`/`Matcher` rather than ad-hoc string splitting, and missing parameters throw `IllegalArgumentException` with a descriptive message.
-- Factory constructors accept only the parameters needed by their target type (e.g. varchar length, decimal precision/scale), keeping each `JsonData` subclass construction self-contained.

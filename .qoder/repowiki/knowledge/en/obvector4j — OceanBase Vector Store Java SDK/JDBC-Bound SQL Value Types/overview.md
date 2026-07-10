@@ -1,1 +1,0 @@
-Defines JDBC-bound value types (int, float, double, text, vector) that serialize to and deserialize from PreparedStatement/ResultSet columns for insert, query, and hybrid search rows.

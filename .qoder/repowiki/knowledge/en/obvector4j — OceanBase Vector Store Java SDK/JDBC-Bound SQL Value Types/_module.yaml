@@ -1,8 +1,0 @@
-schema_version: 1
-module_path: sql_model
-title: JDBC-Bound SQL Value Types
-scope:
-    - src/main/java/com/oceanbase/obvector4j/model/
-source_files: []
-depends_on: []
-related_to: []

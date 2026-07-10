@@ -1,3 +1,0 @@
-- Each concrete type is a thin final wrapper around a single Java primitive/array field with a constructor-only initializer and no mutable state.
-- `toDB` implementations delegate directly to the matching `PreparedStatement` setter (`setInt`, `setString`, etc.) without custom encoding logic beyond what the driver expects.
-- `toString` returns the same textual form that would be sent to the database via `toDB`, keeping serialization and display consistent.

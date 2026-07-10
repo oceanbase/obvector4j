@@ -1,1 +1,0 @@
-JDBC `ResultSet` reader + `org.json.simple` (`JSONObject`, `JSONParser`) for parsing stored default values; pure Java with no external runtime beyond what the parent project already declares.

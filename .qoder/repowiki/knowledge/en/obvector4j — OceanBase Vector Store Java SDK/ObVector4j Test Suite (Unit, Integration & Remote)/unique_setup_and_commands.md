@@ -1,1 +1,0 @@
-Tests run against either a Testcontainers-managed OceanBase CE (default) or an external instance when `OCEANBASE_URI` is set; remote ITs additionally require `OCEANBASE_HOST`, `OCEANBASE_PORT`, `OCEANBASE_DB`, `OCEANBASE_USER`, `OCEANBASE_PASSWORD`. The container waits up to 5 minutes for the `boot success!` log line before any test class runs.
